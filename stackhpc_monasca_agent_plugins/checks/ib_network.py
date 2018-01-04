@@ -29,7 +29,7 @@ _FIELDS_TO_MULTIPLY_BY_LANE_COUNT = {
 
 _METRIC_NAME_PREFIX = "ibnet"
 _IB_DEVICE_PATH = "/sys/class/infiniband/"
-_IB_COUNTER_PATH = "/ports/1/counters/"
+_IB_COUNTER_PATH = "ports/1/counters/"
 
 
 class IBNetwork(checks.AgentCheck):
@@ -55,8 +55,8 @@ class IBNetwork(checks.AgentCheck):
         return counter
 
     def _read_counter(self, device, field):
-        counter_path = ''.join(
-            [_IB_DEVICE_PATH, device, _IB_COUNTER_PATH, field])
+        counter_path = os.path.join(
+            _IB_DEVICE_PATH, device, _IB_COUNTER_PATH, field)
         with open(counter_path) as f:
             counter = f.read()
         # This could be an unsigned 64 bit integer, so use a long
