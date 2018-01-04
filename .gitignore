@@ -1,0 +1,9 @@
+*.py[co]
+*.egg*
+.tox/*
+.idea
+cover
+.coverage
+.stestr
+*.swp
+*.swo
