@@ -13,6 +13,7 @@
 # under the License.
 
 import unittest
+
 import mock
 
 import stackhpc_monasca_agent_plugins.detection.ib_network as ib_network
@@ -33,23 +34,15 @@ class TestIBNetworkDetect(unittest.TestCase):
         self.assertIn('ib_network', config)
 
     @mock.patch('os.path.isdir')
-    @mock.patch('pkgutil.find_loader')
-    def test__detect_ok(self, mock_isdir, mock_find_loader):
+    def test__detect_ok(self, mock_isdir):
         mock_isdir.return_value = True
-        mock_find_loader.return_value = 'Dummy loader'
         self.ib_network._detect()
+        mock_isdir.assert_called_once_with(ib_network._IB_DEVICE_PATH)
         self.assertTrue(self.ib_network.available)
-
-    @mock.patch('os.path.isdir')
-    @mock.patch('pkgutil.find_loader')
-    def test__detect_no_plugin(self, mock_isdir, mock_find_loader):
-        mock_isdir.return_value = True
-        mock_find_loader.return_value = None
-        self.ib_network._detect()
-        self.assertFalse(self.ib_network.available)
 
     @mock.patch('os.path.isdir')
     def test__detect_no_infiniband(self, mock_isdir):
         mock_isdir.return_value = False
         self.ib_network._detect()
+        mock_isdir.assert_called_once_with(ib_network._IB_DEVICE_PATH)
         self.assertFalse(self.ib_network.available)

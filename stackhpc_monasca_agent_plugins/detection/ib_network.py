@@ -14,7 +14,6 @@
 
 import logging
 import os
-import pkgutil
 
 import monasca_setup.agent_config
 import monasca_setup.detection
@@ -33,10 +32,6 @@ class IBNetworkDetect(monasca_setup.detection.Plugin):
             LOG.info('Infiniband hardware was not detected: ib_network plugin'
                      'will not be loaded.')
             return
-        if not self._detect_plugins():
-            LOG.error('Infiniband hardware was detected, but the StackHPC'
-                      'Monasca Agent plugins are not available.')
-            return
         self.available = True
 
     def build_config(self):
@@ -47,6 +42,3 @@ class IBNetworkDetect(monasca_setup.detection.Plugin):
 
     def _detect_infiniband(self):
         return os.path.isdir(_IB_DEVICE_PATH)
-
-    def _detect_plugins(self):
-        return pkgutil.find_loader(_PLUGIN_MODULE_NAME) is not None
