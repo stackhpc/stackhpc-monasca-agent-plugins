@@ -70,7 +70,8 @@ class IBNetwork(checks.AgentCheck):
 
     @staticmethod
     def _get_fields(device):
-        return os.listdir(''.join([_IB_DEVICE_PATH, device, _IB_COUNTER_PATH]))
+        return os.listdir(os.path.join(
+            _IB_DEVICE_PATH, device, _IB_COUNTER_PATH))
 
     def check(self, instance):
         dimensions = self._set_dimensions(None, instance)
