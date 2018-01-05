@@ -20,7 +20,6 @@ import monasca_setup.detection
 
 LOG = logging.getLogger(__name__)
 
-_PLUGIN_MODULE_NAME = "stackhpc_monasca_agent_plugins"
 _IB_DEVICE_PATH = "/sys/class/infiniband/"
 
 
