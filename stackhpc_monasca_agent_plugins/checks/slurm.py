@@ -41,11 +41,18 @@ class Slurm(checks.AgentCheck):
 
     @staticmethod
     def _get_raw_data(cmd, timeout=10):
-        stdout, stderr, rc = timeout_command(cmd, timeout)
+        # If the command times out, nothing is returned
+        stdout, stderr, rc = (
+            timeout_command(cmd, timeout) or (None, None, None))
         if rc == 0:
             return stdout
-        raise Exception("Failed to query Slurm. Return code: {0}, error: {1}."
-                        .format(rc, stderr))
+        elif rc is None:
+            err_msg = ("Command: {} timed out after {} seconds."
+                       .format(cmd, timeout))
+        else:
+            err_msg = ("Failed to query Slurm. Return code: {0}, error: {1}."
+                       .format(rc, stderr))
+        raise Exception(err_msg)
 
     @staticmethod
     def _get_raw_node_data():

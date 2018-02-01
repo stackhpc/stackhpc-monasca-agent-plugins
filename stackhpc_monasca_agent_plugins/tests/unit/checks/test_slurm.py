@@ -60,7 +60,7 @@ class TestSlurm(unittest.TestCase):
         self.slurm = MockSlurmPlugin()
 
     @mock.patch('stackhpc_monasca_agent_plugins.checks.slurm.timeout_command')
-    def test__get_raw_data(self, mock_timeout_command):
+    def test__get_raw_data_failed(self, mock_timeout_command):
         err_msg = 'something terrible'
         mock_timeout_command.return_value = ('', err_msg, 1)
         self.assertRaisesRegexp(
@@ -68,6 +68,16 @@ class TestSlurm(unittest.TestCase):
             'Failed to query Slurm. Return code: 1, error: {}'.format(err_msg),
             slurm.Slurm._get_raw_data, 'doomed cmd', timeout=5)
         mock_timeout_command.assert_called_with('doomed cmd', 5)
+
+    @mock.patch('stackhpc_monasca_agent_plugins.checks.slurm.timeout_command')
+    def test__get_raw_data_timed_out(self, mock_timeout_command):
+        cmd = 'slow cmd'
+        mock_timeout_command.return_value = None
+        self.assertRaisesRegexp(
+            Exception,
+            'Command: {} timed out after 5 seconds.'.format(cmd),
+            slurm.Slurm._get_raw_data, cmd, timeout=5)
+        mock_timeout_command.assert_called_with(cmd, 5)
 
     @mock.patch('stackhpc_monasca_agent_plugins.tests.unit.checks.test_slurm.'
                 'MockSlurmPlugin._get_raw_job_data')
