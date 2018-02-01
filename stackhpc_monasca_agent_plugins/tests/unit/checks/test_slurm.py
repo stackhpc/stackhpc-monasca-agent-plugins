@@ -59,6 +59,16 @@ class TestSlurm(unittest.TestCase):
     def setUp(self):
         self.slurm = MockSlurmPlugin()
 
+    @mock.patch('stackhpc_monasca_agent_plugins.checks.slurm.timeout_command')
+    def test__get_raw_data(self, mock_timeout_command):
+        err_msg = 'something terrible'
+        mock_timeout_command.return_value = ('', err_msg, 1)
+        self.assertRaisesRegexp(
+            Exception,
+            'Failed to query Slurm. Return code: 1, error: {}'.format(err_msg),
+            slurm.Slurm._get_raw_data, 'doomed cmd', timeout=5)
+        mock_timeout_command.assert_called_with('doomed cmd', 5)
+
     @mock.patch('stackhpc_monasca_agent_plugins.tests.unit.checks.test_slurm.'
                 'MockSlurmPlugin._get_raw_job_data')
     def test__get_jobs_none(self, mock_job_data):
@@ -73,6 +83,49 @@ class TestSlurm(unittest.TestCase):
             'openhpc-compute-0',
             'openhpc-compute-1',
             'openhpc-compute-2',
+        }
+        actual = self.slurm._extract_node_names(field)
+        self.assertEqual(expected, actual)
+
+    def test__extract_node_names_single_node(self):
+        field = "openhpc-compute-17"
+        expected = {
+            'openhpc-compute-17'
+        }
+        actual = self.slurm._extract_node_names(field)
+        self.assertEqual(expected, actual)
+
+    def test__extract_node_names_discontinuous(self):
+        field = "openhpc-compute-[1,15]"
+        expected = {
+            'openhpc-compute-1',
+            'openhpc-compute-15',
+        }
+        actual = self.slurm._extract_node_names(field)
+        self.assertEqual(expected, actual)
+
+    def test__extract_node_names_series_discontinuous(self):
+        field = "openhpc-compute-[1-3,5]"
+        expected = {
+            'openhpc-compute-1',
+            'openhpc-compute-2',
+            'openhpc-compute-3',
+            'openhpc-compute-5',
+        }
+        actual = self.slurm._extract_node_names(field)
+        self.assertEqual(expected, actual)
+
+    def test__extract_node_names_series_multiple_discontinuous(self):
+        field = "openhpc-compute-[1-3,5,7-9,11]"
+        expected = {
+            'openhpc-compute-1',
+            'openhpc-compute-2',
+            'openhpc-compute-3',
+            'openhpc-compute-5',
+            'openhpc-compute-7',
+            'openhpc-compute-8',
+            'openhpc-compute-9',
+            'openhpc-compute-11'
         }
         actual = self.slurm._extract_node_names(field)
         self.assertEqual(expected, actual)

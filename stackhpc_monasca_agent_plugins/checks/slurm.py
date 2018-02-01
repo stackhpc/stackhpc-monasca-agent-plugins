@@ -32,7 +32,7 @@ _SLURM_JOB_FIELD_REGEX = ('^JobId=([\d]+)\sJobName=((?i)[\w-]+\.[\w-]+)\sUserI'
                           'd=([\w-]+\([\w-]+\)) GroupId=([\w-]+\([\w-]+\))\s.*'
                           'JobState=([\w]+)\s.*\sNodeList=(.*?)\s.*$')
 _SLURM_NODE_FIELD_REGEX = '^NodeName=(.*?)\s.*State=(.*?)\s.*$'
-_SLURM_NODE_SEQUENCE_REGEX = '^(.*)-\[(\d+-\d+)\]$'
+_SLURM_NODE_SEQUENCE_REGEX = '^(.*)\[(.*)\]$'
 
 
 class Slurm(checks.AgentCheck):
@@ -44,8 +44,8 @@ class Slurm(checks.AgentCheck):
         stdout, stderr, rc = timeout_command(cmd, timeout)
         if rc == 0:
             return stdout
-        log.error("Failed to query Slurm with return code {0}, error {1}"
-                  .format(rc, stderr))
+        raise Exception("Failed to query Slurm. Return code: {0}, error: {1}."
+                        .format(rc, stderr))
 
     @staticmethod
     def _get_raw_node_data():
@@ -57,13 +57,19 @@ class Slurm(checks.AgentCheck):
 
     @staticmethod
     def _extract_node_names(field):
-        node_sequence = re.match(_SLURM_NODE_SEQUENCE_REGEX, field)
+        multiple_nodes = re.match(_SLURM_NODE_SEQUENCE_REGEX, field)
         node_names = set()
-        if node_sequence:
-            prefix = node_sequence.group(1)
-            node_range = node_sequence.group(2).split('-')
-            for n in range(int(node_range[0]), int(node_range[1]) + 1):
-                node_names.add('{}-{}'.format(prefix, n))
+        if multiple_nodes:
+            prefix = multiple_nodes.group(1)
+            sequences = multiple_nodes.group(2).split(',')
+            # Some example sequences: '1', '1-2', '1,3,5-7', ...
+            for s in sequences:
+                node_range = s.split('-')
+                sequence_start = int(node_range[0])
+                sequence_end = int(
+                    node_range[1] if len(node_range) == 2 else sequence_start)
+                for node in range(sequence_start, sequence_end + 1):
+                    node_names.add('{}{}'.format(prefix, node))
         else:
             node_names.add(field)
         return node_names
