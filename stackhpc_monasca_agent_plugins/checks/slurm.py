@@ -28,7 +28,7 @@ _METRIC_NAME = "job_status"
 _SLURM_LIST_JOBS_CMD = ['/usr/bin/scontrol', '-o', 'show', 'job']
 _SLURM_LIST_NODES_CMD = ['/usr/bin/scontrol', '-o', 'show', 'node']
 
-_SLURM_JOB_FIELD_REGEX = ('^JobId=([\d]+)\sJobName=((?i)[\w-]+\.[\w-]+)\sUserI'
+_SLURM_JOB_FIELD_REGEX = ('^JobId=([\d]+)\sJobName=(.*?)\sUserI'
                           'd=([\w-]+\([\w-]+\)) GroupId=([\w-]+\([\w-]+\))\s.*'
                           'JobState=([\w]+)\s.*\sNodeList=(.*?)\s.*$')
 _SLURM_NODE_FIELD_REGEX = '^NodeName=(.*?)\s.*State=(.*?)\s.*$'
