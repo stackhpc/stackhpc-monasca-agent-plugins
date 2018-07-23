@@ -174,71 +174,72 @@ class TestSlurm(unittest.TestCase):
     def test__get_jobs(self):
         actual = self.slurm._get_jobs()
         expected = {
-            'openhpc-compute-10': {
+            'openhpc-compute-0': [{
+                'job_id': '688', 'user_group': 'john',
+                'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+            'openhpc-compute-1': [{
+                'job_id': '688', 'user_group': 'john',
+                'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+            'openhpc-compute-2': [{
+                'job_id': '688', 'user_group': 'john',
+                'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+            'openhpc-compute-3': [{
+                'job_id': '688', 'user_group': 'john',
+                'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+            'openhpc-compute-4': [{
+                'job_id': '688', 'user_group': 'john',
+                'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+            'openhpc-compute-5': [{
+                'job_id': '688', 'user_group': 'john',
+                'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+            'openhpc-compute-6': [{
+                'job_id': '688', 'user_group': 'john',
+                'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+            'openhpc-compute-7': [{
+                'job_id': '688', 'user_group': 'john',
+                'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+            'openhpc-compute-8': [{
                 'job_id': '689', 'user_group': 'john',
                 'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'},
-            'openhpc-compute-11': {
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+            'openhpc-compute-9': [{
                 'job_id': '689', 'user_group': 'john',
                 'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'},
-            'openhpc-compute-12': {
-                'job_id': '690', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'},
-            'openhpc-compute-13': {
-                'job_id': '690', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'},
-            'openhpc-compute-14': {
-                'job_id': '690', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'},
-            'openhpc-compute-15': {
-                'job_id': '690', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'},
-            'openhpc-compute-8': {
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+            'openhpc-compute-10': [{
                 'job_id': '689', 'user_group': 'john',
                 'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'},
-            'openhpc-compute-9': {
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+            'openhpc-compute-11': [{
                 'job_id': '689', 'user_group': 'john',
                 'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'},
-            'openhpc-compute-2': {
-                'job_id': '688', 'user_group': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+            'openhpc-compute-12': [{
+                'job_id': '690', 'user_group': 'john',
                 'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'},
-            'openhpc-compute-3': {
-                'job_id': '688', 'user_group': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+            'openhpc-compute-13': [{
+                'job_id': '690', 'user_group': 'john',
                 'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'},
-            'openhpc-compute-0': {
-                'job_id': '688', 'user_group': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+            'openhpc-compute-14': [{
+                'job_id': '690', 'user_group': 'john',
                 'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'},
-            'openhpc-compute-1': {
-                'job_id': '688', 'user_group': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+            'openhpc-compute-15': [{
+                'job_id': '690', 'user_group': 'john',
                 'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'},
-            'openhpc-compute-6': {
-                'job_id': '688', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'},
-            'openhpc-compute-7': {
-                'job_id': '688', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'},
-            'openhpc-compute-4': {
-                'job_id': '688', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'},
-            'openhpc-compute-5': {
-                'job_id': '688', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
         }
+        self.maxDiff = None
         self.assertEqual(expected, actual)
 
     def test__get_nodes(self):
@@ -282,133 +283,187 @@ class TestSlurm(unittest.TestCase):
         metric_name = '{}.{}'.format(slurm._METRIC_NAME_PREFIX,
                                      slurm._METRIC_NAME)
         calls = [
-            mock.call(mock.ANY, metric_name, 0.0,
-                      device_name='openhpc-compute-18',
-                      dimensions={'instance': 'openhpc-login-0'},
-                      value_meta={}),
-            mock.call(mock.ANY, metric_name, 0.0,
-                      device_name='openhpc-compute-19',
-                      dimensions={'instance': 'openhpc-login-0'},
-                      value_meta={}),
-            mock.call(mock.ANY, metric_name, 690.0,
-                      device_name='openhpc-compute-14', dimensions={
-                          'user_id': 'john', 'job_state': 'RUNNING',
-                          'user_group': 'john', 'instance': 'openhpc-login-0'},
+            mock.call(mock.ANY, metric_name, 2,
+                      device_name='openhpc-compute-0', 
+                      dimensions={
+                          'user_id': 'john', 'job_state': 'RUNNING', 'job_id': "688",
+                          'user_group': 'john', 'instance': 'openhpc-login-0',
+                          'hostname': 'openhpc-compute-0'},
                       value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 690.0,
-                      device_name='openhpc-compute-15', dimensions={
-                          'user_id': 'john', 'job_state': 'RUNNING',
-                          'user_group': 'john', 'instance': 'openhpc-login-0'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 0.0,
-                      device_name='openhpc-compute-16',
-                      dimensions={'instance': 'openhpc-login-0'},
-                      value_meta={}),
-            mock.call(mock.ANY, metric_name, 0.0,
-                      device_name='openhpc-compute-17',
-                      dimensions={'instance': 'openhpc-login-0'},
-                      value_meta={}),
-            mock.call(mock.ANY, metric_name, 689.0,
-                      device_name='openhpc-compute-10', dimensions={
-                          'user_id': 'john', 'job_state': 'RUNNING',
-                          'user_group': 'john', 'instance': 'openhpc-login-0'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 689.0,
-                      device_name='openhpc-compute-11', dimensions={
-                          'user_id': 'john', 'job_state': 'RUNNING',
-                          'user_group': 'john', 'instance': 'openhpc-login-0'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 690.0,
-                      device_name='openhpc-compute-12', dimensions={
-                          'user_id': 'john', 'job_state': 'RUNNING',
-                          'user_group': 'john', 'instance': 'openhpc-login-0'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 690.0,
-                      device_name='openhpc-compute-13', dimensions={
-                          'user_id': 'john', 'job_state': 'RUNNING',
-                          'user_group': 'john', 'instance': 'openhpc-login-0'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 689.0,
-                      device_name='openhpc-compute-8', dimensions={
-                          'user_id': 'john', 'job_state': 'RUNNING',
-                          'user_group': 'john', 'instance': 'openhpc-login-0'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 689.0,
-                      device_name='openhpc-compute-9', dimensions={
-                          'user_id': 'john', 'job_state': 'RUNNING',
-                          'user_group': 'john', 'instance': 'openhpc-login-0'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 688.0,
-                      device_name='openhpc-compute-4', dimensions={
-                          'user_id': 'john', 'job_state': 'RUNNING',
-                          'user_group': 'john', 'instance': 'openhpc-login-0'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 688.0,
-                      device_name='openhpc-compute-5', dimensions={
-                          'user_id': 'john', 'job_state': 'RUNNING',
-                          'user_group': 'john', 'instance': 'openhpc-login-0'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 688.0,
-                      device_name='openhpc-compute-6', dimensions={
-                          'user_id': 'john', 'job_state': 'RUNNING',
-                          'user_group': 'john', 'instance': 'openhpc-login-0'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 688.0,
-                      device_name='openhpc-compute-7', dimensions={
-                          'user_id': 'john', 'job_state': 'RUNNING',
-                          'user_group': 'john', 'instance': 'openhpc-login-0'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 688.0,
-                      device_name='openhpc-compute-0', dimensions={
-                          'user_id': 'john', 'job_state': 'RUNNING',
-                          'user_group': 'john', 'instance': 'openhpc-login-0'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 688.0,
+            mock.call(mock.ANY, metric_name, 2,
                       device_name='openhpc-compute-1', dimensions={
-                          'user_id': 'john', 'job_state': 'RUNNING',
-                          'user_group': 'john', 'instance': 'openhpc-login-0'},
+                          'user_id': 'john', 'job_state': 'RUNNING', 'job_id': "688",
+                          'user_group': 'john', 'instance': 'openhpc-login-0',
+                          'hostname': 'openhpc-compute-1'},
                       value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 688.0,
-                      device_name='openhpc-compute-2', dimensions={
-                          'user_id': 'john', 'job_state': 'RUNNING',
-                          'user_group': 'john', 'instance': 'openhpc-login-0'},
+            mock.call(mock.ANY, metric_name, 2,
+                      device_name='openhpc-compute-2', 
+                      dimensions={
+                          'user_id': 'john', 'job_state': 'RUNNING', 'job_id': "688",
+                          'user_group': 'john', 'instance': 'openhpc-login-0',
+                          'hostname': 'openhpc-compute-2'},
                       value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 688.0,
-                      device_name='openhpc-compute-3', dimensions={
-                          'user_id': 'john', 'job_state': 'RUNNING',
-                          'user_group': 'john', 'instance': 'openhpc-login-0'},
+            mock.call(mock.ANY, metric_name, 2,
+                      device_name='openhpc-compute-3', 
+                      dimensions={
+                          'user_id': 'john', 'job_state': 'RUNNING', 'job_id': "688",
+                          'user_group': 'john', 'instance': 'openhpc-login-0',
+                          'hostname': 'openhpc-compute-3'},
                       value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 0.0,
-                      device_name='openhpc-compute-21',
-                      dimensions={'instance': 'openhpc-login-0'},
-                      value_meta={}),
-            mock.call(mock.ANY, metric_name, 0.0,
-                      device_name='openhpc-compute-20',
-                      dimensions={'instance': 'openhpc-login-0'},
-                      value_meta={}),
-            mock.call(mock.ANY, metric_name, 0.0,
-                      device_name='openhpc-compute-23',
-                      dimensions={'instance': 'openhpc-login-0'},
-                      value_meta={}),
-            mock.call(mock.ANY, metric_name, 0.0,
-                      device_name='openhpc-compute-22',
-                      dimensions={'instance': 'openhpc-login-0'},
-                      value_meta={}),
-            mock.call(mock.ANY, metric_name, 0.0,
-                      device_name='openhpc-compute-25',
-                      dimensions={'instance': 'openhpc-login-0'},
-                      value_meta={}),
-            mock.call(mock.ANY, metric_name, 0.0,
-                      device_name='openhpc-compute-24',
-                      dimensions={'instance': 'openhpc-login-0'},
-                      value_meta={}),
-            mock.call(mock.ANY, metric_name, 0.0,
-                      device_name='openhpc-compute-27',
-                      dimensions={'instance': 'openhpc-login-0'},
-                      value_meta={}),
-            mock.call(mock.ANY, metric_name, 0.0,
-                      device_name='openhpc-compute-26',
-                      dimensions={'instance': 'openhpc-login-0'},
-                      value_meta={})
+            mock.call(mock.ANY, metric_name, 2,
+                      device_name='openhpc-compute-4', 
+                      dimensions={
+                          'user_id': 'john', 'job_state': 'RUNNING', 'job_id': "688",
+                          'user_group': 'john', 'instance': 'openhpc-login-0',
+                          'hostname': 'openhpc-compute-4'},
+                      value_meta={'job_name': 'test_ompi.sh'}),
+            mock.call(mock.ANY, metric_name, 2,
+                      device_name='openhpc-compute-5', dimensions={
+                          'user_id': 'john', 'job_state': 'RUNNING', 'job_id': "688",
+                          'user_group': 'john', 'instance': 'openhpc-login-0',
+                          'hostname': 'openhpc-compute-5'},
+                      value_meta={'job_name': 'test_ompi.sh'}),
+            mock.call(mock.ANY, metric_name, 2,
+                      device_name='openhpc-compute-6', 
+                      dimensions={
+                          'user_id': 'john', 'job_state': 'RUNNING', 'job_id': "688",
+                          'user_group': 'john', 'instance': 'openhpc-login-0',
+                          'hostname': 'openhpc-compute-6'},
+                      value_meta={'job_name': 'test_ompi.sh'}),
+            mock.call(mock.ANY, metric_name, 2,
+                      device_name='openhpc-compute-7', 
+                      dimensions={
+                          'user_id': 'john', 'job_state': 'RUNNING', 'job_id': "688",
+                          'user_group': 'john', 'instance': 'openhpc-login-0',
+                          'hostname': 'openhpc-compute-7'},
+                      value_meta={'job_name': 'test_ompi.sh'}),
+            mock.call(mock.ANY, metric_name, 2,
+                      device_name='openhpc-compute-8', 
+                      dimensions={
+                          'user_id': 'john', 'job_state': 'RUNNING', 'job_id': "689",
+                          'user_group': 'john', 'instance': 'openhpc-login-0',
+                          'hostname': 'openhpc-compute-8'},
+                      value_meta={'job_name': 'test_ompi.sh'}),
+            mock.call(mock.ANY, metric_name, 2,
+                      device_name='openhpc-compute-9', 
+                      dimensions={
+                          'user_id': 'john', 'job_state': 'RUNNING', 'job_id': "689",
+                          'user_group': 'john', 'instance': 'openhpc-login-0',
+                          'hostname': 'openhpc-compute-9'},
+                      value_meta={'job_name': 'test_ompi.sh'}),
+            mock.call(mock.ANY, metric_name, 2,
+                      device_name='openhpc-compute-10', 
+                      dimensions={
+                          'user_id': 'john', 'job_state': 'RUNNING', 'job_id': "689",
+                          'user_group': 'john', 'instance': 'openhpc-login-0',
+                          'hostname': 'openhpc-compute-10'},
+                      value_meta={'job_name': 'test_ompi.sh'}),
+            mock.call(mock.ANY, metric_name, 2,
+                      device_name='openhpc-compute-11', 
+                      dimensions={
+                          'user_id': 'john', 'job_state': 'RUNNING', 'job_id': "689",
+                          'user_group': 'john', 'instance': 'openhpc-login-0',
+                          'hostname': 'openhpc-compute-11'},
+                      value_meta={'job_name': 'test_ompi.sh'}),
+            mock.call(mock.ANY, metric_name, 2,
+                      device_name='openhpc-compute-12', 
+                      dimensions={
+                          'user_id': 'john', 'job_state': 'RUNNING', 'job_id': "690",
+                          'user_group': 'john', 'instance': 'openhpc-login-0',
+                          'hostname': 'openhpc-compute-12'},
+                      value_meta={'job_name': 'test_ompi.sh'}),
+            mock.call(mock.ANY, metric_name, 2,
+                      device_name='openhpc-compute-13', 
+                      dimensions={
+                          'user_id': 'john', 'job_state': 'RUNNING', 'job_id': "690",
+                          'user_group': 'john', 'instance': 'openhpc-login-0',
+                          'hostname': 'openhpc-compute-13'},
+                      value_meta={'job_name': 'test_ompi.sh'}),
+            mock.call(mock.ANY, metric_name, 2,
+                      device_name='openhpc-compute-14', 
+                      dimensions={
+                          'user_id': 'john', 'job_state': 'RUNNING', 'job_id': "690",
+                          'user_group': 'john', 'instance': 'openhpc-login-0',
+                          'hostname': 'openhpc-compute-14'},
+                      value_meta={'job_name': 'test_ompi.sh'}),
+            mock.call(mock.ANY, metric_name, 2,
+                      device_name='openhpc-compute-15', 
+                      dimensions={
+                          'user_id': 'john', 'job_state': 'RUNNING', 'job_id': "690",
+                          'user_group': 'john', 'instance': 'openhpc-login-0',
+                          'hostname': 'openhpc-compute-15'},
+                      value_meta={'job_name': 'test_ompi.sh'}),
+            # mock.call(mock.ANY, metric_name, 0,
+            #           device_name='openhpc-compute-16',
+            #           dimensions={
+            #             'instance': 'openhpc-login-0',
+            #               'hostname': 'openhpc-compute-16'},
+            #           value_meta={}),
+            # mock.call(mock.ANY, metric_name, 0,
+            #           device_name='openhpc-compute-17',
+            #           dimensions={
+            #               'instance': 'openhpc-login-0',
+            #               'hostname': 'openhpc-compute-17'},
+            #           value_meta={}),
+            # mock.call(mock.ANY, metric_name, 0,
+            #           device_name='openhpc-compute-18',
+            #           dimensions={
+            #               'instance': 'openhpc-login-0',
+            #               'hostname': 'openhpc-compute-18'},
+            #           value_meta={}),
+            # mock.call(mock.ANY, metric_name, 0,
+            #           device_name='openhpc-compute-19',
+            #           dimensions={
+            #               'instance': 'openhpc-login-0',
+            #               'hostname': 'openhpc-compute-19'},
+            #           value_meta={}),
+            # mock.call(mock.ANY, metric_name, 0,
+            #           device_name='openhpc-compute-20',
+            #           dimensions={
+            #               'instance': 'openhpc-login-0',
+            #               'hostname': 'openhpc-compute-20'},
+            #           value_meta={}),
+            # mock.call(mock.ANY, metric_name, 0,
+            #           device_name='openhpc-compute-21',
+            #           dimensions={
+            #               'instance': 'openhpc-login-0',
+            #               'hostname': 'openhpc-compute-21'},
+            #           value_meta={}),
+            # mock.call(mock.ANY, metric_name, 0,
+            #           device_name='openhpc-compute-22',
+            #           dimensions={
+            #               'instance': 'openhpc-login-0',
+            #               'hostname': 'openhpc-compute-22'},
+            #           value_meta={}),
+            # mock.call(mock.ANY, metric_name, 0,
+            #           device_name='openhpc-compute-23',
+            #           dimensions={
+            #               'instance': 'openhpc-login-0',
+            #               'hostname': 'openhpc-compute-23'},
+            #           value_meta={}),
+            # mock.call(mock.ANY, metric_name, 0,
+            #           device_name='openhpc-compute-24',
+            #           dimensions={
+            #               'instance': 'openhpc-login-0',
+            #               'hostname': 'openhpc-compute-24'},
+            #           value_meta={}),
+            # mock.call(mock.ANY, metric_name, 0,
+            #           device_name='openhpc-compute-25',
+            #           dimensions={
+            #               'instance': 'openhpc-login-0',
+            #               'hostname': 'openhpc-compute-25'},
+            #           value_meta={}),
+            # mock.call(mock.ANY, metric_name, 0,
+            #           device_name='openhpc-compute-26',
+            #           dimensions={
+            #               'instance': 'openhpc-login-0',
+            #               'hostname': 'openhpc-compute-26'},
+            #           value_meta={}),
+            # mock.call(mock.ANY, metric_name, 0,
+            #           device_name='openhpc-compute-27',
+            #           dimensions={
+            #               'instance': 'openhpc-login-0',
+            #               'hostname': 'openhpc-compute-27'},
+            #           value_meta={})
         ]
         mock_gauge.assert_has_calls(calls, any_order=True)

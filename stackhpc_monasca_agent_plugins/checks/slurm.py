@@ -19,7 +19,6 @@ import re
 import monasca_agent.collector.checks as checks
 from monasca_agent.common.util import timeout_command
 
-
 log = logging.getLogger(__name__)
 
 _METRIC_NAME_PREFIX = "slurm"
@@ -33,6 +32,15 @@ _SLURM_JOB_FIELD_REGEX = ('^JobId=([\d]+)\sJobName=(.*?)\sUserI'
                           'JobState=([\w]+)\s.*\sNodeList=(.*?)\s.*$')
 _SLURM_NODE_FIELD_REGEX = '^NodeName=(.*?)\s.*State=(.*?)\s.*$'
 _SLURM_NODE_SEQUENCE_REGEX = '^(.*)\[(.*)\]$'
+
+_JOB_STATE = {
+    "UNKNOWN": 0,  
+    "PENDING": 1,       # PD, Awaiting resource allocation
+    "RUNNING": 2,       # R, Resources allocated and script executing
+    "SUSPENDED": 3,     # S, Job suspended and previously allocated resources released
+    "COMPLETING": 4,    # CG, in the process of completing, processes of a job still executing in the background
+    "COMPLETED": 5      # CD, job terminated (successfully)
+}
 
 
 class Slurm(checks.AgentCheck):
@@ -113,8 +121,7 @@ class Slurm(checks.AgentCheck):
                 # Ignore pending jobs for now
                 nodes = self._extract_node_names(m.group(6))
                 for node in nodes:
-                    # TODO: Nodes could have multiple jobs
-                    jobs[node] = copy.deepcopy(job)
+                    jobs[node] = (jobs[node] if (node in jobs) else []) + [copy.deepcopy(job)]
         return jobs
 
     def _get_nodes(self):
@@ -127,21 +134,23 @@ class Slurm(checks.AgentCheck):
         return nodes
 
     def check(self, instance):
-        jobs = self._get_jobs()
+        metric_name = '{0}.{1}'.format(_METRIC_NAME_PREFIX, _METRIC_NAME)
+        jobs_by_node = self._get_jobs()
         for node in self._get_nodes():
-            metric_name = '{0}.{1}'.format(_METRIC_NAME_PREFIX, _METRIC_NAME)
-            job_info = jobs.get(node, {})
-            # TODO - If node is down set to -1?
-            metric_value = float(job_info.pop('job_id', 0.0))
-            # Save the job name as metadata. For one, it's likely to have
-            # characters which aren't valid in a dimension.
-            value_meta = {
-                'job_name': job_info.pop(
-                    'job_name')} if 'job_name' in job_info else {}
-            dimensions = self._set_dimensions(job_info, instance)
-            self.gauge(metric_name,
-                       metric_value,
-                       device_name=node,
-                       dimensions=dimensions,
-                       value_meta=value_meta)
-            log.debug('Collected slurm status for node {0}'.format(node))
+            jobs = jobs_by_node.get(node, [])
+            for job_info in jobs:
+                job_info.update({ 'hostname': node })
+                # TODO - If node is down set to -1?
+                metric_value = _JOB_STATE.get(job_info.get('job_state', 'UNKNOWN'), _JOB_STATE.get('UNKNOWN'))
+                # Save the job name as metadata. For one, it's likely to have
+                # characters which aren't valid in a dimension.
+                value_meta = {
+                    'job_name': job_info.pop(
+                        'job_name')} if 'job_name' in job_info else {}
+                dimensions = self._set_dimensions(job_info, instance)
+                self.gauge(metric_name,
+                        metric_value,
+                        device_name=node,
+                        dimensions=dimensions,
+                        value_meta=value_meta)
+                log.debug('Collected slurm status for node {0}'.format(node))
