@@ -117,17 +117,17 @@ class Slurm(checks.AgentCheck):
                 'user_group': Slurm._extract_name(m.group(4)),
                 'job_state': m.group(5),
             }
-            if 'RUNNING' in job['job_state']:
-                # Ignore pending jobs for now
-                nodes = self._extract_node_names(m.group(6))
-                for node in nodes:
-                    jobs[node] = (jobs[node] if (node in jobs) else []) + [copy.deepcopy(job)]
+            # if 'RUNNING' in job['job_state']:
+            # Ignore pending jobs for now
+            nodes = self._extract_node_names(m.group(6))
+            for node in nodes:
+                jobs[node] = (jobs[node] if (node in jobs) else []) + [copy.deepcopy(job)]
         return jobs
 
     def _get_nodes(self):
         raw_node_data = self._get_raw_node_data()
         pattern = re.compile(_SLURM_NODE_FIELD_REGEX)
-        nodes = {}
+        nodes = { '(null)': None }
         for node in raw_node_data:
             m = pattern.match(node)
             nodes[m.group(1)] = {'node_state': m.group(2)}
@@ -139,14 +139,13 @@ class Slurm(checks.AgentCheck):
         for node in self._get_nodes():
             jobs = jobs_by_node.get(node, [])
             for job_info in jobs:
+                print("job_info: ", job_info)
                 job_info.update({ 'hostname': node })
                 # TODO - If node is down set to -1?
-                metric_value = _JOB_STATE.get(job_info.get('job_state', 'UNKNOWN'), _JOB_STATE.get('UNKNOWN'))
+                metric_value = _JOB_STATE.get(job_info.pop('job_state', 'UNKNOWN'), _JOB_STATE.get('UNKNOWN'))
                 # Save the job name as metadata. For one, it's likely to have
                 # characters which aren't valid in a dimension.
-                value_meta = {
-                    'job_name': job_info.pop(
-                        'job_name')} if 'job_name' in job_info else {}
+                value_meta = { 'job_name': job_info.pop('job_name', 'job_' + job_info.get('job_id')) }
                 dimensions = self._set_dimensions(job_info, instance)
                 self.gauge(metric_name,
                         metric_value,
