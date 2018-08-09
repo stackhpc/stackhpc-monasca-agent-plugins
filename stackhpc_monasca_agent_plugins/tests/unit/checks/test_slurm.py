@@ -176,75 +176,75 @@ class TestSlurm(unittest.TestCase):
         expected = {
             '(null)': [{
                 'job_id': '691', 'job_name': 'test_ompi.sh', 
-                'job_state': 'PENDING', 'user_group': 'john',
-                'user_id': 'john' }, {
+                'job_state': 'PENDING', 'user_group': 'john', 'user_id': 'john',
+                'runtime': '00:00:00', 'time_limit': '1-00:00:00', 'start_time': '2018-01-26T12:05:46', 'end_time': '2018-01-27T12:05:46' }, {
                 'job_id': '692', 'job_name': 'test_ompi.sh',
-                'job_state': 'PENDING', 'user_group': 'john',
-                'user_id': 'john'}],
+                'job_state': 'PENDING', 'user_group': 'john',  'user_id': 'john', 
+                'runtime': '00:00:00', 'time_limit': '1-00:00:00', 'start_time': 'Unknown', 'end_time': 'Unknown' }],
             'openhpc-compute-0': [{
-                'job_id': '688', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+                'job_id': '688', 'user_group': 'john', 
+                'user_id': 'john', 'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
+                'runtime': '01:53:03', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T11:53:42', 'end_time': '2018-01-26T11:53:42' }],
             'openhpc-compute-1': [{
-                'job_id': '688', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+                'job_id': '688', 'user_group': 'john', 'user_id': 'john', 
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
+                'runtime': '01:53:03', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T11:53:42', 'end_time': '2018-01-26T11:53:42' }],
             'openhpc-compute-2': [{
-                'job_id': '688', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+                'job_id': '688', 'user_group': 'john', 'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
+                'runtime': '01:53:03', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T11:53:42', 'end_time': '2018-01-26T11:53:42'}],
             'openhpc-compute-3': [{
-                'job_id': '688', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+                'job_id': '688', 'user_group': 'john', 'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
+                'runtime': '01:53:03', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T11:53:42', 'end_time': '2018-01-26T11:53:42'}],
             'openhpc-compute-4': [{
-                'job_id': '688', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+                'job_id': '688', 'user_group': 'john', 'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
+                'runtime': '01:53:03', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T11:53:42', 'end_time': '2018-01-26T11:53:42'}],
             'openhpc-compute-5': [{
-                'job_id': '688', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+                'job_id': '688', 'user_group': 'john', 'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
+                'runtime': '01:53:03', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T11:53:42', 'end_time': '2018-01-26T11:53:42'}],
             'openhpc-compute-6': [{
-                'job_id': '688', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+                'job_id': '688', 'user_group': 'john', 'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
+                'runtime': '01:53:03', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T11:53:42', 'end_time': '2018-01-26T11:53:42'}],
             'openhpc-compute-7': [{
-                'job_id': '688', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+                'job_id': '688', 'user_group': 'john', 'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
+                'runtime': '01:53:03', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T11:53:42', 'end_time': '2018-01-26T11:53:42'}],
             'openhpc-compute-8': [{
-                'job_id': '689', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+                'job_id': '689', 'user_group': 'john', 'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
+                'runtime': '01:43:49', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T12:02:56', 'end_time': '2018-01-26T12:02:56'}],
             'openhpc-compute-9': [{
-                'job_id': '689', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+                'job_id': '689', 'user_group': 'john', 'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
+                'runtime': '01:43:49', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T12:02:56', 'end_time': '2018-01-26T12:02:56'}],
             'openhpc-compute-10': [{
-                'job_id': '689', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+                'job_id': '689', 'user_group': 'john', 'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
+                'runtime': '01:43:49', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T12:02:56', 'end_time': '2018-01-26T12:02:56'}],
             'openhpc-compute-11': [{
-                'job_id': '689', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+                'job_id': '689', 'user_group': 'john', 'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
+                'runtime': '01:43:49', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T12:02:56', 'end_time': '2018-01-26T12:02:56'}],
             'openhpc-compute-12': [{
-                'job_id': '690', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+                'job_id': '690', 'user_group': 'john', 'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
+                'runtime': '01:40:59', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T12:05:46', 'end_time': '2018-01-26T12:05:46'}],
             'openhpc-compute-13': [{
-                'job_id': '690', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+                'job_id': '690', 'user_group': 'john', 'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
+                'runtime': '01:40:59', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T12:05:46', 'end_time': '2018-01-26T12:05:46'}],
             'openhpc-compute-14': [{
-                'job_id': '690', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+                'job_id': '690', 'user_group': 'john', 'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
+                'runtime': '01:40:59', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T12:05:46', 'end_time': '2018-01-26T12:05:46'}],
             'openhpc-compute-15': [{
-                'job_id': '690', 'user_group': 'john',
-                'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING'}],
+                'job_id': '690', 'user_group': 'john', 'user_id': 'john',
+                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
+                'runtime': '01:40:59', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T12:05:46', 'end_time': '2018-01-26T12:05:46'}]
         }
         self.maxDiff = None
         self.assertEqual(expected, actual)
@@ -288,132 +288,244 @@ class TestSlurm(unittest.TestCase):
                 autospec=True)
     def test_check(self, mock_gauge):
         self.slurm.check('openhpc-login-0')
-        metric_name = '{}.{}'.format(slurm._METRIC_NAME_PREFIX,
-                                     slurm._METRIC_NAME)
+        status_metric_name = '{}.{}'.format(slurm._METRIC_NAME_PREFIX, "job_status")
+        runtime_metric_name = '{}.{}'.format(slurm._METRIC_NAME_PREFIX, "job_runtime")
+        starttime_metric_name = '{}.{}'.format(slurm._METRIC_NAME_PREFIX, "job_starttime")
+        endtime_metric_name = '{}.{}'.format(slurm._METRIC_NAME_PREFIX, "job_endtime")
+
         calls = [
-            mock.call(mock.ANY, metric_name, 1,
+            mock.call(mock.ANY, status_metric_name, 1,
                       device_name='(null)', 
                       dimensions={
                           'user_id': 'john', 'job_id': "691",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': '(null)'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 1,
-                      device_name='(null)', 
+                      value_meta={
+                          'job_name': 'test_ompi.sh',
+                          'runtime': '00:00:00',
+                          'time_limit': '1-00:00:00',
+                          'start_time': '2018-01-26T12:05:46',
+                          'end_time': '2018-01-27T12:05:46'
+                        }),
+            mock.call(mock.ANY, status_metric_name, 1,
+                      device_name='(null)',
                       dimensions={
                           'user_id': 'john', 'job_id': "692",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': '(null)'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 2,
+                      value_meta={
+                          'job_name': 'test_ompi.sh',
+                          'runtime': '00:00:00',
+                          'time_limit': '1-00:00:00',
+                          'start_time': 'Unknown',
+                          'end_time': 'Unknown'
+                        }),
+            mock.call(mock.ANY, status_metric_name, 2,
                       device_name='openhpc-compute-0', 
                       dimensions={
                           'user_id': 'john', 'job_id': "688",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-0'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 2,
+                      value_meta={
+                          'job_name': 'test_ompi.sh',
+                          'runtime': '01:53:03',
+                          'time_limit': '1-00:00:00',
+                          'start_time': '2018-01-25T11:53:42',
+                          'end_time': '2018-01-26T11:53:42'
+                        }),
+            mock.call(mock.ANY, status_metric_name, 2,
                       device_name='openhpc-compute-1', dimensions={
                           'user_id': 'john', 'job_id': "688",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-1'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 2,
+                      value_meta={
+                          'job_name': 'test_ompi.sh',
+                          'runtime': '01:53:03',
+                          'time_limit': '1-00:00:00',
+                          'start_time': '2018-01-25T11:53:42',
+                          'end_time': '2018-01-26T11:53:42'
+                        }),
+            mock.call(mock.ANY, status_metric_name, 2,
                       device_name='openhpc-compute-2', 
                       dimensions={
                           'user_id': 'john', 'job_id': "688",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-2'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 2,
+                      value_meta={
+                          'job_name': 'test_ompi.sh',
+                          'runtime': '01:53:03',
+                          'time_limit': '1-00:00:00',
+                          'start_time': '2018-01-25T11:53:42',
+                          'end_time': '2018-01-26T11:53:42'
+                        }),
+            mock.call(mock.ANY, status_metric_name, 2,
                       device_name='openhpc-compute-3', 
                       dimensions={
                           'user_id': 'john', 'job_id': "688",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-3'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 2,
+                      value_meta={
+                          'job_name': 'test_ompi.sh',
+                          'runtime': '01:53:03',
+                          'time_limit': '1-00:00:00',
+                          'start_time': '2018-01-25T11:53:42',
+                          'end_time': '2018-01-26T11:53:42'
+                        }),
+            mock.call(mock.ANY, status_metric_name, 2,
                       device_name='openhpc-compute-4', 
                       dimensions={
                           'user_id': 'john', 'job_id': "688",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-4'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 2,
+                      value_meta={
+                          'job_name': 'test_ompi.sh',
+                          'runtime': '01:53:03',
+                          'time_limit': '1-00:00:00',
+                          'start_time': '2018-01-25T11:53:42',
+                          'end_time': '2018-01-26T11:53:42'
+                        }),
+            mock.call(mock.ANY, status_metric_name, 2,
                       device_name='openhpc-compute-5', dimensions={
                           'user_id': 'john', 'job_id': "688",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-5'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 2,
+                      value_meta={
+                          'job_name': 'test_ompi.sh',
+                          'runtime': '01:53:03',
+                          'time_limit': '1-00:00:00',
+                          'start_time': '2018-01-25T11:53:42',
+                          'end_time': '2018-01-26T11:53:42'
+                        }),
+            mock.call(mock.ANY, status_metric_name, 2,
                       device_name='openhpc-compute-6', 
                       dimensions={
                           'user_id': 'john', 'job_id': "688",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-6'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 2,
+                      value_meta={
+                          'job_name': 'test_ompi.sh',
+                          'runtime': '01:53:03',
+                          'time_limit': '1-00:00:00',
+                          'start_time': '2018-01-25T11:53:42',
+                          'end_time': '2018-01-26T11:53:42'
+                        }),
+            mock.call(mock.ANY, status_metric_name, 2,
                       device_name='openhpc-compute-7', 
                       dimensions={
                           'user_id': 'john', 'job_id': "688",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-7'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 2,
+                      value_meta={
+                          'job_name': 'test_ompi.sh',
+                          'runtime': '01:53:03',
+                          'time_limit': '1-00:00:00',
+                          'start_time': '2018-01-25T11:53:42',
+                          'end_time': '2018-01-26T11:53:42'
+                        }),
+            mock.call(mock.ANY, status_metric_name, 2,
                       device_name='openhpc-compute-8', 
                       dimensions={
                           'user_id': 'john', 'job_id': "689",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-8'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 2,
+                      value_meta={
+                          'job_name': 'test_ompi.sh',
+                          'runtime': '01:43:49',
+                          'time_limit': '1-00:00:00',
+                          'start_time': '2018-01-25T12:02:56',
+                          'end_time': '2018-01-26T12:02:56'
+                        }),
+            mock.call(mock.ANY, status_metric_name, 2,
                       device_name='openhpc-compute-9', 
                       dimensions={
                           'user_id': 'john', 'job_id': "689",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-9'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 2,
+                      value_meta={
+                          'job_name': 'test_ompi.sh',
+                          'runtime': '01:43:49',
+                          'time_limit': '1-00:00:00',
+                          'start_time': '2018-01-25T12:02:56',
+                          'end_time': '2018-01-26T12:02:56'
+                        }),
+            mock.call(mock.ANY, status_metric_name, 2,
                       device_name='openhpc-compute-10', 
                       dimensions={
                           'user_id': 'john', 'job_id': "689",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-10'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 2,
+                      value_meta={
+                          'job_name': 'test_ompi.sh',
+                          'runtime': '01:43:49',
+                          'time_limit': '1-00:00:00',
+                          'start_time': '2018-01-25T12:02:56',
+                          'end_time': '2018-01-26T12:02:56'
+                        }),
+            mock.call(mock.ANY, status_metric_name, 2,
                       device_name='openhpc-compute-11', 
                       dimensions={
                           'user_id': 'john', 'job_id': "689",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-11'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 2,
+                      value_meta={
+                          'job_name': 'test_ompi.sh',
+                          'runtime': '01:43:49',
+                          'time_limit': '1-00:00:00',
+                          'start_time': '2018-01-25T12:02:56',
+                          'end_time': '2018-01-26T12:02:56'
+                        }),
+            mock.call(mock.ANY, status_metric_name, 2,
                       device_name='openhpc-compute-12', 
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-12'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 2,
+                      value_meta={
+                          'job_name': 'test_ompi.sh',
+                          'runtime': '01:40:59',
+                          'time_limit': '1-00:00:00',
+                          'start_time': '2018-01-25T12:05:46',
+                          'end_time': '2018-01-26T12:05:46'
+                        }),
+            mock.call(mock.ANY, status_metric_name, 2,
                       device_name='openhpc-compute-13', 
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-13'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 2,
+                      value_meta={
+                          'job_name': 'test_ompi.sh',
+                          'runtime': '01:40:59',
+                          'time_limit': '1-00:00:00',
+                          'start_time': '2018-01-25T12:05:46',
+                          'end_time': '2018-01-26T12:05:46'
+                        }),
+            mock.call(mock.ANY, status_metric_name, 2,
                       device_name='openhpc-compute-14', 
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-14'},
-                      value_meta={'job_name': 'test_ompi.sh'}),
-            mock.call(mock.ANY, metric_name, 2,
+                      value_meta={
+                          'job_name': 'test_ompi.sh',
+                          'runtime': '01:40:59',
+                          'time_limit': '1-00:00:00',
+                          'start_time': '2018-01-25T12:05:46',
+                          'end_time': '2018-01-26T12:05:46'
+                        }),
+            mock.call(mock.ANY, status_metric_name, 2,
                       device_name='openhpc-compute-15', 
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-15'},
-                      value_meta={'job_name': 'test_ompi.sh'})
+                      value_meta={
+                          'job_name': 'test_ompi.sh',
+                          'runtime': '01:40:59',
+                          'time_limit': '1-00:00:00',
+                          'start_time': '2018-01-25T12:05:46',
+                          'end_time': '2018-01-26T12:05:46'
+                        }),
         ]
+
         mock_gauge.assert_has_calls(calls, any_order=True)

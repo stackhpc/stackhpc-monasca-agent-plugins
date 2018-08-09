@@ -23,13 +23,14 @@ log = logging.getLogger(__name__)
 
 _METRIC_NAME_PREFIX = "slurm"
 _METRIC_NAME = "job_status"
-
 _SLURM_LIST_JOBS_CMD = ['/usr/bin/scontrol', '-o', 'show', 'job']
 _SLURM_LIST_NODES_CMD = ['/usr/bin/scontrol', '-o', 'show', 'node']
 
-_SLURM_JOB_FIELD_REGEX = ('^JobId=([\d]+)\sJobName=(.*?)\sUserI'
-                          'd=([\w-]+\([\w-]+\)) GroupId=([\w-]+\([\w-]+\))\s.*'
-                          'JobState=([\w]+)\s.*\sNodeList=(.*?)\s.*$')
+_SLURM_JOB_FIELD_REGEX = ('^JobId=([\d]+)\sJobName=(.*?)\s'
+                          'UserId=([\w-]+\([\w-]+\))\sGroupId=([\w-]+\([\w-]+\))\s.*\s'
+                          'JobState=([\w]+)\s.*\sRunTime=([:\w-]+)\s'
+                          'TimeLimit=([:\w-]+)\s.*\sStartTime=([:\w-]+)\s'
+                          'EndTime=([:\w-]+)\s.*\sNodeList=(.*?)\s.*$')
 _SLURM_NODE_FIELD_REGEX = '^NodeName=(.*?)\s.*State=(.*?)\s.*$'
 _SLURM_NODE_SEQUENCE_REGEX = '^(.*)\[(.*)\]$'
 
@@ -116,10 +117,14 @@ class Slurm(checks.AgentCheck):
                 'user_id': Slurm._extract_name(m.group(3)),
                 'user_group': Slurm._extract_name(m.group(4)),
                 'job_state': m.group(5),
+                'runtime': m.group(6),
+                'time_limit': m.group(7),
+                'start_time': m.group(8),
+                'end_time': m.group(9)
             }
             # if 'RUNNING' in job['job_state']:
             # Ignore pending jobs for now
-            nodes = self._extract_node_names(m.group(6))
+            nodes = self._extract_node_names(m.group(10))
             for node in nodes:
                 jobs[node] = (jobs[node] if (node in jobs) else []) + [copy.deepcopy(job)]
         return jobs
@@ -145,8 +150,15 @@ class Slurm(checks.AgentCheck):
                 metric_value = _JOB_STATE.get(job_info.pop('job_state', 'UNKNOWN'), _JOB_STATE.get('UNKNOWN'))
                 # Save the job name as metadata. For one, it's likely to have
                 # characters which aren't valid in a dimension.
-                value_meta = { 'job_name': job_info.pop('job_name', 'job_' + job_info.get('job_id')) }
+                value_meta = { 
+                    'job_name': job_info.pop('job_name', 'job_' + job_info.get('job_id')),
+                    'runtime': job_info.pop('runtime', "Unknown"),
+                    'time_limit': job_info.pop('time_limit', "Unknown"),
+                    'start_time': job_info.pop('start_time', "Unknown"),
+                    'end_time': job_info.pop('end_time', "Unknown")
+                }
                 dimensions = self._set_dimensions(job_info, instance)
+                
                 self.gauge(metric_name,
                         metric_value,
                         device_name=node,
