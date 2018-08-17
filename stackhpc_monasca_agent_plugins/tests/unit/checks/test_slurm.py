@@ -25,6 +25,9 @@ _EXAMPLE_SLURM_NODE_LIST_FILENAME = 'example_slurm_node_list'
 # Example output from $ scontrol -o show job
 _EXAMPLE_SLURM_JOB_LIST_FILENAME = 'example_slurm_job_list'
 
+# Example output from $ sreport cluster utilization
+_EXAMPLE_SLURM_CLUSTER_UTILIZATION_REPORT = 'example_cluster_utilization_report'
+
 
 class MockSlurmPlugin(slurm.Slurm):
     def __init__(self):
@@ -53,6 +56,11 @@ class MockSlurmPlugin(slurm.Slurm):
     @staticmethod
     def _get_raw_node_data():
         return MockSlurmPlugin._get_raw_data(_EXAMPLE_SLURM_NODE_LIST_FILENAME)
+
+    @staticmethod
+    def _get_raw_cluster_utilisation_report_data():
+        return MockSlurmPlugin._get_raw_data(
+            _EXAMPLE_SLURM_CLUSTER_UTILIZATION_REPORT)
 
 
 class TestSlurm(unittest.TestCase):
@@ -283,6 +291,11 @@ class TestSlurm(unittest.TestCase):
             'openhpc-compute-8': {'node_state': 'IDLE'}
         }
         self.assertEqual(expected, actual)
+
+    def test__get_cluster_utilization_data(self):
+        allocated_nodes, reported_nodes = self.slurm._get_cluster_utilization_data()
+        self.assertEqual(allocated_nodes, 20117847)
+        self.assertEqual(reported_nodes, 23195520)
 
     @mock.patch('monasca_agent.collector.checks.AgentCheck.gauge',
                 autospec=True)
@@ -526,6 +539,8 @@ class TestSlurm(unittest.TestCase):
                           'start_time': '2018-01-25T12:05:46',
                           'end_time': '2018-01-26T12:05:46'
                         }),
+            mock.call(mock.ANY, "cluster.slurm_utilization",
+                     20117847/23195520)
         ]
 
         mock_gauge.assert_has_calls(calls, any_order=True)

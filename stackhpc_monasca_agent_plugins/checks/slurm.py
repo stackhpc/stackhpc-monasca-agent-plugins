@@ -25,6 +25,7 @@ _METRIC_NAME_PREFIX = "slurm"
 _METRIC_NAME = "job_status"
 _SLURM_LIST_JOBS_CMD = ['/usr/bin/scontrol', '-o', 'show', 'job']
 _SLURM_LIST_NODES_CMD = ['/usr/bin/scontrol', '-o', 'show', 'node']
+_SLURM_CLUSTER_UTILIZATION_CMD = ['/usr/bin/sreport', 'cluster', 'utilization']
 
 _SLURM_JOB_FIELD_REGEX = ('^JobId=([\d]+)\sJobName=(.*?)\s'
                           'UserId=([\w-]+\([\w-]+\))\sGroupId=([\w-]+\([\w-]+\))\s.*\s'
@@ -33,6 +34,8 @@ _SLURM_JOB_FIELD_REGEX = ('^JobId=([\d]+)\sJobName=(.*?)\s'
                           'EndTime=([:\w-]+)\s.*\sNodeList=(.*?)\s.*$')
 _SLURM_NODE_FIELD_REGEX = '^NodeName=(.*?)\s.*State=(.*?)\s.*$'
 _SLURM_NODE_SEQUENCE_REGEX = '^(.*)\[(.*)\]$'
+_SLURM_CLUSTER_UTILIZATION_REPORT_FIELD_REGEX = ('([\S]+)[\s]+([\d]+)[\s]+([\d]+)[\s]+'
+    '([\d]+)[\s]+([\d]+)[\s]+([\d]+)[\s]+([\d]+)')
 
 _JOB_STATE = {
     "UNKNOWN": 0,  
@@ -70,6 +73,10 @@ class Slurm(checks.AgentCheck):
     @staticmethod
     def _get_raw_job_data():
         return Slurm._get_raw_data(_SLURM_LIST_JOBS_CMD).splitlines()
+
+    @staticmethod
+    def _get_raw_cluster_utilisation_report_data():
+        return Slurm._get_raw_data(_SLURM_CLUSTER_UTILIZATION_CMD).splitlines()
 
     @staticmethod
     def _extract_node_names(field):
@@ -138,6 +145,13 @@ class Slurm(checks.AgentCheck):
             nodes[m.group(1)] = {'node_state': m.group(2)}
         return nodes
 
+    def _get_cluster_utilization_data(self):
+        raw_cluster_utilization_report_data = self._get_raw_cluster_utilisation_report_data()[-1]
+        pattern = re.compile(_SLURM_CLUSTER_UTILIZATION_REPORT_FIELD_REGEX)
+        groups = pattern.match(raw_cluster_utilization_report_data)
+        allocated_nodes, reported_nodes = int(groups.group(2)), int(groups.group(7))
+        return (allocated_nodes, reported_nodes)
+
     def check(self, instance):
         metric_name = '{0}.{1}'.format(_METRIC_NAME_PREFIX, _METRIC_NAME)
         jobs_by_node = self._get_jobs()
@@ -165,3 +179,6 @@ class Slurm(checks.AgentCheck):
                         dimensions=dimensions,
                         value_meta=value_meta)
                 log.debug('Collected slurm status for node {0}'.format(node))
+        allocated_nodes, reported_nodes = self._get_cluster_utilization_data()
+        self.gauge("cluster.slurm_utilization",
+                   allocated_nodes / reported_nodes)
