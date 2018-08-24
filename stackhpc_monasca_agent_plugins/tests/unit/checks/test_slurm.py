@@ -28,6 +28,11 @@ _EXAMPLE_SLURM_JOB_LIST_FILENAME = 'example_slurm_job_list'
 # Example output from $ sreport cluster utilization
 _EXAMPLE_SLURM_CLUSTER_UTILIZATION_REPORT = 'example_cluster_utilization_report'
 
+# Example output from $ sacct --allocations --allusers --state=RUNNING --format=TimeLimit
+_EXAMPLE_SLURM_JOB_SIZE_LIST  = 'example_job_size_list'
+
+# Example output from $ sacct --allocations --allusers --state=RUNNING --format=TimeLimit
+_EXAMPLE_SDIAG_FILENAME  = 'example_sdiag'
 
 class MockSlurmPlugin(slurm.Slurm):
     def __init__(self):
@@ -62,6 +67,15 @@ class MockSlurmPlugin(slurm.Slurm):
         return MockSlurmPlugin._get_raw_data(
             _EXAMPLE_SLURM_CLUSTER_UTILIZATION_REPORT)
 
+    @staticmethod
+    def _get_job_sizes_data():
+        return MockSlurmPlugin._get_raw_data(
+            _EXAMPLE_SLURM_JOB_SIZE_LIST)
+
+    @staticmethod
+    def _get_sdiag_data():
+        return "\n".join(MockSlurmPlugin._get_raw_data(
+            _EXAMPLE_SDIAG_FILENAME))
 
 class TestSlurm(unittest.TestCase):
     def setUp(self):
@@ -296,6 +310,15 @@ class TestSlurm(unittest.TestCase):
         allocated_nodes, reported_nodes = self.slurm._get_cluster_utilization_data()
         self.assertEqual(allocated_nodes, 20117847)
         self.assertEqual(reported_nodes, 23195520)
+
+
+    def test__get_avg_job_size(self):
+        avg_job_size = self.slurm._get_avg_job_size()
+        self.assertEqual(avg_job_size, 6925)
+
+    def test__get_queue_length(self):
+        queue_length  = self.slurm._get_queue_length()
+        self.assertEqual(queue_length, 30)
 
     @mock.patch('monasca_agent.collector.checks.AgentCheck.gauge',
                 autospec=True)
@@ -540,7 +563,11 @@ class TestSlurm(unittest.TestCase):
                           'end_time': '2018-01-26T12:05:46'
                         }),
             mock.call(mock.ANY, "cluster.slurm_utilization",
-                     20117847/23195520)
+                     20117847/23195520),
+            mock.call(mock.ANY, "slurm.avg_job_size",
+                     6925),
+            mock.call(mock.ANY, "slurm.queue_length",
+                     30)
         ]
 
         mock_gauge.assert_has_calls(calls, any_order=True)

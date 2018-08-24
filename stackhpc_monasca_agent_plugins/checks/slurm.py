@@ -26,6 +26,9 @@ _METRIC_NAME = "job_status"
 _SLURM_LIST_JOBS_CMD = ['/usr/bin/scontrol', '-o', 'show', 'job']
 _SLURM_LIST_NODES_CMD = ['/usr/bin/scontrol', '-o', 'show', 'node']
 _SLURM_CLUSTER_UTILIZATION_CMD = ['/usr/bin/sreport', 'cluster', 'utilization']
+_SLURM_LIST_JOB_SIZES_CMD = ['sacct', '--allocations', '--allusers', '--state',
+    'RUNNING', '--format', 'TimeLimit']
+_SLURM_SDIAG_CMD = ['sdiag']
 
 _SLURM_JOB_FIELD_REGEX = ('^JobId=([\d]+)\sJobName=(.*?)\s'
                           'UserId=([\w-]+\([\w-]+\))\sGroupId=([\w-]+\([\w-]+\))\s.*\s'
@@ -77,6 +80,14 @@ class Slurm(checks.AgentCheck):
     @staticmethod
     def _get_raw_cluster_utilisation_report_data():
         return Slurm._get_raw_data(_SLURM_CLUSTER_UTILIZATION_CMD).splitlines()
+
+    @staticmethod
+    def _get_job_sizes_data():
+        return Slurm._get_raw_data(_SLURM_LIST_JOB_SIZES_CMD).splitlines()
+
+    @staticmethod
+    def _get_sdiag_data():
+        return Slurm._get_raw_data(_SLURM_SDIAG_CMD)
 
     @staticmethod
     def _extract_node_names(field):
@@ -152,6 +163,22 @@ class Slurm(checks.AgentCheck):
         allocated_nodes, reported_nodes = int(groups.group(2)), int(groups.group(7))
         return (allocated_nodes, reported_nodes)
 
+    def _get_avg_job_size(self):
+        raw_job_sizes_data = self._get_job_sizes_data()[2:]
+        def timelimit_str_to_mins(timelimit_str):
+            day_time = timelimit_str.split("-")
+            day = day_time[0] if len(day_time) > 1 else 0
+            (hrs, mins, secs) = day_time[-1].split(":")
+            return (int(day) * 24 + int(hrs)) * 60 + int(mins)
+        job_sizes = map(timelimit_str_to_mins, raw_job_sizes_data)
+        return sum(job_sizes)/len(job_sizes)
+
+    def _get_queue_length(self):
+        raw_sdiag_data = self._get_sdiag_data()
+        print(type(raw_sdiag_data))
+        queue_length = int(re.search("Last queue length:\s([\d]+)", raw_sdiag_data).group(1))
+        return queue_length
+
     def check(self, instance):
         metric_name = '{0}.{1}'.format(_METRIC_NAME_PREFIX, _METRIC_NAME)
         jobs_by_node = self._get_jobs()
@@ -182,3 +209,9 @@ class Slurm(checks.AgentCheck):
         allocated_nodes, reported_nodes = self._get_cluster_utilization_data()
         self.gauge("cluster.slurm_utilization",
                    allocated_nodes / reported_nodes)
+        avg_job_size = self._get_avg_job_size()
+        self.gauge("slurm.avg_job_size",
+                    avg_job_size)
+        queue_length = self._get_queue_length()
+        self.gauge("slurm.queue_length",
+                   queue_length)
