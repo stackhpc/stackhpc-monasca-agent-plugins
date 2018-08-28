@@ -105,6 +105,7 @@ class Slurm(checks.AgentCheck):
                 for node in range(sequence_start, sequence_end + 1):
                     node_names.add('{}{}'.format(prefix, node))
         else:
+            field = 'null' if field == '(null)' else field
             node_names.add(field)
         return node_names
 
@@ -150,7 +151,7 @@ class Slurm(checks.AgentCheck):
     def _get_nodes(self):
         raw_node_data = self._get_raw_node_data()
         pattern = re.compile(_SLURM_NODE_FIELD_REGEX)
-        nodes = { '(null)': None }
+        nodes = { 'null': None }
         for node in raw_node_data:
             m = pattern.match(node)
             nodes[m.group(1)] = {'node_state': m.group(2)}
@@ -206,12 +207,15 @@ class Slurm(checks.AgentCheck):
                         dimensions=dimensions,
                         value_meta=value_meta)
                 log.debug('Collected slurm status for node {0}'.format(node))
-        allocated_nodes, reported_nodes = self._get_cluster_utilization_data()
-        self.gauge("cluster.slurm_utilization",
-                   allocated_nodes / reported_nodes)
-        avg_job_size = self._get_avg_job_size()
-        self.gauge("slurm.avg_job_size",
+        try:
+            allocated_nodes, reported_nodes = self._get_cluster_utilization_data()
+            self.gauge("cluster.slurm_utilization",
+                       allocated_nodes / reported_nodes)
+            avg_job_size = self._get_avg_job_size()
+            self.gauge("slurm.avg_job_size",
                     avg_job_size)
-        queue_length = self._get_queue_length()
-        self.gauge("slurm.queue_length",
-                   queue_length)
+            queue_length = self._get_queue_length()
+            self.gauge("slurm.queue_length",
+                       queue_length)
+        except Exception as exp:
+            pass
