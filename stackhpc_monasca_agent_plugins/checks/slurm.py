@@ -23,15 +23,15 @@ from monasca_agent.common.util import timeout_command
 log = logging.getLogger(__name__)
 
 _METRIC_NAME_PREFIX = "slurm"
-_METRIC_NAME = "job_status.1"
+_METRIC_NAME = "job_status"
 _SLURM_LIST_JOBS_CMD = ['/usr/bin/scontrol', '-o', 'show', 'job']
 _SLURM_LIST_NODES_CMD = ['/usr/bin/scontrol', '-o', 'show', 'node']
 _SLURM_CLUSTER_UTILIZATION_CMD = ['/usr/bin/sreport', 'cluster', 'utilization']
 _SLURM_LIST_JOB_SIZES_CMD = ['sacct', '--allocations', '--allusers', '--state',
     'RUNNING', '--format', 'TimeLimit']
 _SLURM_SDIAG_CMD = ['sdiag']
-_SLURM_JOB_STATISTICS = ['sstat', '-j', '<job_id>', '--allsteps',
-    '--format=', 'AveCPU,AveDiskRead,AveDiskWrite,AvePages,AveCPUFreq,AveRSS,'
+_SLURM_JOB_STATISTICS = ['sudo', 'sstat', '-j', '<job_id>', '--allsteps',
+    '--format', 'AveCPU,AveDiskRead,AveDiskWrite,AvePages,AveCPUFreq,AveRSS,'
     'AveVMSize,MinCPU,MaxDiskRead,MaxDiskWrite,MaxPages,MaxRSS,MaxVMSize']
 
 _SLURM_JOB_FIELD_REGEX = ('^JobId=([\d]+)\sJobName=(.*?)\s'
@@ -97,7 +97,9 @@ class Slurm(checks.AgentCheck):
 
     @staticmethod
     def _get_job_statistics_data(job_id):
-        _SLURM_JOB_STATISTICS[2] = job_id
+        _SLURM_JOB_STATISTICS[3] = str(job_id)
+	log.debug("stats_commands: {}".format(str(_SLURM_JOB_STATISTICS)))
+	log.debug("raw_job_stats_data: {}".format(str(Slurm._get_raw_data(_SLURM_JOB_STATISTICS).splitlines())))
         return map(lambda str: str.rstrip(), Slurm._get_raw_data(_SLURM_JOB_STATISTICS).splitlines())
 
     @staticmethod
@@ -204,6 +206,7 @@ class Slurm(checks.AgentCheck):
     def _get_job_statistics(self, job_id):
         job_statistics_data = self._get_job_statistics_data(job_id);
         if len(job_statistics_data) > 2:
+	    log.debug("job_statistics_data: {}".format(str(job_statistics_data)))
             groups = re.match(_SLURM_JOB_STATISTICS_REGEX, job_statistics_data[2]);
             ave_cpu, ave_disk_read, ave_disk_write, ave_pages, ave_cpu_freq, ave_rss, ave_vm_size, \
             min_cpu, max_disk_read, max_disk_write, max_pages, max_rss, max_vm_size = \
@@ -252,27 +255,27 @@ class Slurm(checks.AgentCheck):
                             device_name=node,
                             dimensions=dimensions)
                         self.gauge("slurm.ave_disk_read_mb",
-                            float(re.match("^([.\d]+)M$", ave_disk_read).group(1)),
+                            float(re.match("^([.\d]+)(K|M|G)?$", ave_disk_read).group(1)),
                             device_name=node,
                             dimensions=dimensions)
                         self.gauge("slurm.ave_disk_write_mb",
-                            float(re.match("^([.\d]+)M$", ave_disk_write).group(1)),
+                            float(re.match("^([.\d]+)(K|M|G)?$", ave_disk_write).group(1)),
                             device_name=node,
                             dimensions=dimensions)
                         self.gauge("slurm.ave_pages",
-                            int(ave_pages),
+			    float(re.match("^([.\d]+)(K|M|G)?$", ave_pages).group(1)),
                             device_name=node,
                             dimensions=dimensions)
                         self.gauge("slurm.ave_cpu_freq_ghz",
-                            float(re.match("^([.\d]+)G$", ave_cpu_freq).group(1)),
+                            float(re.match("^([.\d]+)(K|M|G)?$", ave_cpu_freq).group(1)),
                             device_name=node,
                             dimensions=dimensions)
                         self.gauge("slurm.ave_rss_mb",
-                            float(re.match("^([.\d]+)K$", ave_rss).group(1))/1000,
+                            float(re.match("^([.\d]+)(K|M|G)?$", ave_rss).group(1))/1000,
                             device_name=node,
                             dimensions=dimensions)
                         self.gauge("slurm.ave_vm_size_mb",
-                            float(re.match("^([.\d]+)K$", ave_vm_size).group(1))/1000,
+                            float(re.match("^([.\d]+)(K|M|G)?$", ave_vm_size).group(1))/1000,
                             device_name=node,
                             dimensions=dimensions)
                         self.gauge("slurm.min_cpu",
@@ -280,15 +283,15 @@ class Slurm(checks.AgentCheck):
                             device_name=node,
                             dimensions=dimensions)
                         self.gauge("slurm.max_disk_read_mb",
-                            float(re.match("^([.\d]+)M$", max_disk_read).group(1)),
+                            float(re.match("^([.\d]+)(K|M|G)?$", max_disk_read).group(1)),
                             device_name=node,
                             dimensions=dimensions)
                         self.gauge("slurm.max_disk_write_mb",
-                            float(re.match("^([.\d]+)M$", max_disk_write).group(1)),
+                            float(re.match("^([.\d]+)(K|M|G)?$", max_disk_write).group(1)),
                             device_name=node,
                             dimensions=dimensions)
                         self.gauge("slurm.max_pages",
-                            int(max_pages),
+			    float(re.match("^([.\d]+)(K|M|G)?$", max_pages).group(1)),
                             device_name=node,
                             dimensions=dimensions)
                         self.gauge("slurm.max_rss_mb",

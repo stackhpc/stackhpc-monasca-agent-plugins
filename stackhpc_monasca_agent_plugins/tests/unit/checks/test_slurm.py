@@ -494,7 +494,7 @@ class TestSlurm(unittest.TestCase):
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-13'}),
-            mock.call(mock.ANY, "slurm.ave_pages", 0,
+            mock.call(mock.ANY, "slurm.ave_pages", 0.0,
                       device_name='openhpc-compute-13', 
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
@@ -536,7 +536,7 @@ class TestSlurm(unittest.TestCase):
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-13'}),
-            mock.call(mock.ANY, "slurm.max_pages", 0,
+            mock.call(mock.ANY, "slurm.max_pages", 0.0,
                       device_name='openhpc-compute-13', 
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
