@@ -23,7 +23,7 @@ from monasca_agent.common.util import timeout_command
 log = logging.getLogger(__name__)
 
 _METRIC_NAME_PREFIX = "slurm"
-_METRIC_NAME = "job_status"
+_METRIC_NAME = "job_status.1"
 _SLURM_LIST_JOBS_CMD = ['/usr/bin/scontrol', '-o', 'show', 'job']
 _SLURM_LIST_NODES_CMD = ['/usr/bin/scontrol', '-o', 'show', 'node']
 _SLURM_CLUSTER_UTILIZATION_CMD = ['/usr/bin/sreport', 'cluster', 'utilization']
