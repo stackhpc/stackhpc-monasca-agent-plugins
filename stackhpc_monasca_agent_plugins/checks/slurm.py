@@ -31,7 +31,7 @@ _SLURM_LIST_JOB_SIZES_CMD = ['sacct', '--allocations', '--allusers', '--state',
     'RUNNING', '--format', 'TimeLimit']
 _SLURM_SDIAG_CMD = ['sdiag']
 _SLURM_JOB_STATISTICS = ['sudo', 'sstat', '-j', '<job_id>', '--allsteps',
-    '--format', 'AveCPU,AveDiskRead,AveDiskWrite,AvePages,AveCPUFreq,AveRSS,'
+    '--noconvert', '--format', 'AveCPU,AveDiskRead,AveDiskWrite,AvePages,AveCPUFreq,AveRSS,'
     'AveVMSize,MinCPU,MaxDiskRead,MaxDiskWrite,MaxPages,MaxRSS,MaxVMSize']
 
 _SLURM_JOB_FIELD_REGEX = ('^JobId=([\d]+)\sJobName=(.*?)\s'
@@ -250,56 +250,56 @@ class Slurm(checks.AgentCheck):
                         ave_cpu, ave_disk_read, ave_disk_write, ave_pages, ave_cpu_freq, ave_rss, ave_vm_size, \
                         min_cpu, max_disk_read, max_disk_write, max_pages, max_rss, max_vm_size = \
                             self._get_job_statistics(job_info.get('job_id'))
-                        self.gauge("slurm.ave_cpu",
+                        self.gauge("slurm.ave_cpu_mins",
                             Slurm.timelimit_str_to_mins(ave_cpu),
                             device_name=node,
                             dimensions=dimensions)
                         self.gauge("slurm.ave_disk_read_mb",
-                            float(re.match("^([.\d]+)(K|M|G)?$", ave_disk_read).group(1)),
+                            float(re.match("^([.\d]+)M?", ave_disk_read).group(1)),
                             device_name=node,
                             dimensions=dimensions)
                         self.gauge("slurm.ave_disk_write_mb",
-                            float(re.match("^([.\d]+)(K|M|G)?$", ave_disk_write).group(1)),
+                            float(re.match("^([.\d]+)M?", ave_disk_write).group(1)),
                             device_name=node,
                             dimensions=dimensions)
-                        self.gauge("slurm.ave_pages",
-			    float(re.match("^([.\d]+)(K|M|G)?$", ave_pages).group(1)),
+                        self.gauge("slurm.ave_pages_kb",
+                        float(re.match("^([.\d]+)K?", ave_pages).group(1)),
                             device_name=node,
                             dimensions=dimensions)
-                        self.gauge("slurm.ave_cpu_freq_ghz",
-                            float(re.match("^([.\d]+)(K|M|G)?$", ave_cpu_freq).group(1)),
+                        self.gauge("slurm.ave_cpu_freq_khz",
+                            float(re.match("^([.\d]+)K?", ave_cpu_freq).group(1)),
                             device_name=node,
                             dimensions=dimensions)
-                        self.gauge("slurm.ave_rss_mb",
-                            float(re.match("^([.\d]+)(K|M|G)?$", ave_rss).group(1))/1000,
+                        self.gauge("slurm.ave_rss_kb",
+                            float(re.match("^([.\d]+)K?", ave_rss).group(1)),
                             device_name=node,
                             dimensions=dimensions)
-                        self.gauge("slurm.ave_vm_size_mb",
-                            float(re.match("^([.\d]+)(K|M|G)?$", ave_vm_size).group(1))/1000,
+                        self.gauge("slurm.ave_vm_size_kb",
+                            float(re.match("^([.\d]+)K?", ave_vm_size).group(1)),
                             device_name=node,
                             dimensions=dimensions)
-                        self.gauge("slurm.min_cpu",
+                        self.gauge("slurm.min_cpu_mins",
                             Slurm.timelimit_str_to_mins(min_cpu),
                             device_name=node,
                             dimensions=dimensions)
                         self.gauge("slurm.max_disk_read_mb",
-                            float(re.match("^([.\d]+)(K|M|G)?$", max_disk_read).group(1)),
+                            float(re.match("^([.\d]+)M?", max_disk_read).group(1)),
                             device_name=node,
                             dimensions=dimensions)
                         self.gauge("slurm.max_disk_write_mb",
-                            float(re.match("^([.\d]+)(K|M|G)?$", max_disk_write).group(1)),
+                            float(re.match("^([.\d]+)M?", max_disk_write).group(1)),
                             device_name=node,
                             dimensions=dimensions)
-                        self.gauge("slurm.max_pages",
-			    float(re.match("^([.\d]+)(K|M|G)?$", max_pages).group(1)),
+                        self.gauge("slurm.max_pages_kb",
+                        float(re.match("^([.\d]+)K?", max_pages).group(1)),
                             device_name=node,
                             dimensions=dimensions)
-                        self.gauge("slurm.max_rss_mb",
-                            float(re.match("^([.\d]+)K$", max_rss).group(1))/1000,
+                        self.gauge("slurm.max_rss_kb",
+                            float(re.match("^([.\d]+)K?", max_rss).group(1)),
                             device_name=node,
                             dimensions=dimensions)
-                        self.gauge("slurm.max_vm_size_mb",
-                            float(re.match("^([.\d]+)K$", max_vm_size).group(1))/1000,
+                        self.gauge("slurm.max_vm_size_kb",
+                            float(re.match("^([.\d]+)K?", max_vm_size).group(1)),
                             device_name=node,
                             dimensions=dimensions)
                         log.debug('Collected slurm statistics for job {0} node {1}'.format(job_info.get('job_id'), node))
