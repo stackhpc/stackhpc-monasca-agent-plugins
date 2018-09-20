@@ -348,7 +348,7 @@ class TestSlurm(unittest.TestCase):
         self.assertEqual(ave_disk_read, "1.39M")
         self.assertEqual(ave_disk_write, "0.00M")
         self.assertEqual(ave_pages, "0")
-        self.assertEqual(ave_cpu_freq, "2.40G")
+        self.assertEqual(ave_cpu_freq, "2.40K")
         self.assertEqual(ave_rss, "125576K")
         self.assertEqual(ave_vm_size, "21722468K")
         self.assertEqual(min_cpu, "00:04.000")
@@ -476,80 +476,80 @@ class TestSlurm(unittest.TestCase):
                      415500),
             mock.call(mock.ANY, "slurm.queue_length",
                      30),
-            mock.call(mock.ANY, "slurm.ave_cpu", 5,
+            mock.call(mock.ANY, "slurm.ave_cpu_mins", 5,
                       device_name='openhpc-compute-13', 
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-13'}),
             mock.call(mock.ANY, "slurm.ave_disk_read_mb", 1.39,
-                      device_name='openhpc-compute-13', 
+                      device_name='openhpc-compute-13',
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-13'}),
             mock.call(mock.ANY, "slurm.ave_disk_write_mb", 0.00,
-                      device_name='openhpc-compute-13', 
+                      device_name='openhpc-compute-13',
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-13'}),
-            mock.call(mock.ANY, "slurm.ave_pages", 0.0,
-                      device_name='openhpc-compute-13', 
+            mock.call(mock.ANY, "slurm.ave_pages_kb", 0.0,
+                      device_name='openhpc-compute-13',
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-13'}),
-            mock.call(mock.ANY, "slurm.ave_cpu_freq_ghz", 2.40,
-                      device_name='openhpc-compute-13', 
+            mock.call(mock.ANY, "slurm.ave_cpu_freq_khz", 2.40,
+                      device_name='openhpc-compute-13',
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-13'}),
-            mock.call(mock.ANY, "slurm.ave_rss_mb", 125.576,
-                      device_name='openhpc-compute-13', 
+            mock.call(mock.ANY, "slurm.ave_rss_kb", 125576,
+                      device_name='openhpc-compute-13',
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-13'}),
-            mock.call(mock.ANY, "slurm.ave_vm_size_mb", 21722.468,
-                      device_name='openhpc-compute-13', 
+            mock.call(mock.ANY, "slurm.ave_vm_size_kb", 21722468,
+                      device_name='openhpc-compute-13',
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-13'}),
-            mock.call(mock.ANY, "slurm.min_cpu", 4,
-                      device_name='openhpc-compute-13', 
+            mock.call(mock.ANY, "slurm.min_cpu_mins", 4,
+                      device_name='openhpc-compute-13',
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-13'}),
             mock.call(mock.ANY, "slurm.max_disk_read_mb", 1.40,
-                      device_name='openhpc-compute-13', 
+                      device_name='openhpc-compute-13',
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-13'}),
             mock.call(mock.ANY, "slurm.max_disk_write_mb", 0.00,
-                      device_name='openhpc-compute-13', 
+                      device_name='openhpc-compute-13',
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-13'}),
-            mock.call(mock.ANY, "slurm.max_pages", 0.0,
-                      device_name='openhpc-compute-13', 
+            mock.call(mock.ANY, "slurm.max_pages_kb", 0.0,
+                      device_name='openhpc-compute-13',
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-13'}),
-            mock.call(mock.ANY, "slurm.max_rss_mb", 126.308,
-                      device_name='openhpc-compute-13', 
+            mock.call(mock.ANY, "slurm.max_rss_kb", 126308,
+                      device_name='openhpc-compute-13',
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
                           'hostname': 'openhpc-compute-13'}),
-            mock.call(mock.ANY, "slurm.max_vm_size_mb", 21724.660,
-                      device_name='openhpc-compute-13', 
+            mock.call(mock.ANY, "slurm.max_vm_size_kb", 21724660,
+                      device_name='openhpc-compute-13',
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
