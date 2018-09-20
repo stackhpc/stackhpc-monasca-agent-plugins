@@ -26,19 +26,23 @@ _EXAMPLE_SLURM_NODE_LIST_FILENAME = 'example_slurm_node_list'
 _EXAMPLE_SLURM_JOB_LIST_FILENAME = 'example_slurm_job_list'
 
 # Example output from $ sreport cluster utilization
-_EXAMPLE_SLURM_CLUSTER_UTILIZATION_REPORT = 'example_cluster_utilization_report'
+_EXAMPLE_SLURM_CLUSTER_UTILIZATION_REPORT = \
+    'example_cluster_utilization_report'
 
-# Example output from $ sacct --allocations --allusers --state=RUNNING --format=TimeLimit
-_EXAMPLE_SLURM_JOB_SIZE_LIST  = 'example_job_size_list'
+# Example output from $ sacct --allocations --allusers --state=RUNNING
+# --format=TimeLimit
+_EXAMPLE_SLURM_JOB_SIZE_LIST = 'example_job_size_list'
 
-# Example output from $ sacct --allocations --allusers --state=RUNNING --format=TimeLimit
-_EXAMPLE_SDIAG_FILENAME  = 'example_sdiag'
+# Example output from $ sacct --allocations --allusers --state=RUNNING
+# --format=TimeLimit
+_EXAMPLE_SDIAG_FILENAME = 'example_sdiag'
 
 # Example successful output from sstat
-_EXAMPLE_JOB_STATISTICS_FILENAME  = 'example_job_statistics'
+_EXAMPLE_JOB_STATISTICS_FILENAME = 'example_job_statistics'
 
 # Example failed output from sstat
-_EXAMPLE_JOB_STATISTICS_EMPTY_FILENAME  = 'example_job_statistics_empty'
+_EXAMPLE_JOB_STATISTICS_EMPTY_FILENAME = 'example_job_statistics_empty'
+
 
 class MockSlurmPlugin(slurm.Slurm):
     def __init__(self):
@@ -92,6 +96,7 @@ class MockSlurmPlugin(slurm.Slurm):
     def _get_job_statistics_data_failed(job_id):
         return MockSlurmPlugin._get_raw_data(
             _EXAMPLE_JOB_STATISTICS_EMPTY_FILENAME)
+
 
 class TestSlurm(unittest.TestCase):
     def setUp(self):
@@ -213,76 +218,121 @@ class TestSlurm(unittest.TestCase):
         actual = self.slurm._get_jobs()
         expected = {
             'null': [{
-                'job_id': '691', 'job_name': 'test_ompi.sh', 
-                'job_state': 'PENDING', 'user_group': 'john', 'user_id': 'john',
-                'runtime': '00:00:00', 'time_limit': '1-00:00:00', 'start_time': '2018-01-26T12:05:46', 'end_time': '2018-01-27T12:05:46' }, {
+                'job_id': '691', 'job_name': 'test_ompi.sh',
+                'job_state': 'PENDING', 'user_group': 'john',
+                'user_id': 'john', 'runtime': '00:00:00',
+                'time_limit': '1-00:00:00',
+                'start_time': '2018-01-26T12:05:46',
+                'end_time': '2018-01-27T12:05:46'}, {
                 'job_id': '692', 'job_name': 'test_ompi.sh',
-                'job_state': 'PENDING', 'user_group': 'john',  'user_id': 'john', 
-                'runtime': '00:00:00', 'time_limit': '1-00:00:00', 'start_time': 'Unknown', 'end_time': 'Unknown' }],
+                'job_state': 'PENDING', 'user_group': 'john',
+                'user_id': 'john', 'runtime': '00:00:00',
+                'time_limit': '1-00:00:00', 'start_time': 'Unknown',
+                'end_time': 'Unknown'}],
             'openhpc-compute-0': [{
-                'job_id': '688', 'user_group': 'john', 
-                'user_id': 'john', 'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
-                'runtime': '01:53:03', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T11:53:42', 'end_time': '2018-01-26T11:53:42' }],
+                'job_id': '688', 'user_group': 'john',
+                'user_id': 'john', 'job_name': 'test_ompi.sh',
+                'job_state': 'RUNNING', 'runtime': '01:53:03',
+                'time_limit': '1-00:00:00',
+                'start_time': '2018-01-25T11:53:42',
+                'end_time': '2018-01-26T11:53:42'}],
             'openhpc-compute-1': [{
-                'job_id': '688', 'user_group': 'john', 'user_id': 'john', 
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
-                'runtime': '01:53:03', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T11:53:42', 'end_time': '2018-01-26T11:53:42' }],
+                'job_id': '688', 'user_group': 'john',
+                'user_id': 'john', 'job_name': 'test_ompi.sh',
+                'job_state': 'RUNNING', 'runtime': '01:53:03',
+                'time_limit': '1-00:00:00',
+                'start_time': '2018-01-25T11:53:42',
+                'end_time': '2018-01-26T11:53:42'}],
             'openhpc-compute-2': [{
-                'job_id': '688', 'user_group': 'john', 'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
-                'runtime': '01:53:03', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T11:53:42', 'end_time': '2018-01-26T11:53:42'}],
+                'job_id': '688', 'user_group': 'john',
+                'user_id': 'john', 'job_name': 'test_ompi.sh',
+                'job_state': 'RUNNING', 'runtime': '01:53:03',
+                'time_limit': '1-00:00:00',
+                'start_time': '2018-01-25T11:53:42',
+                'end_time': '2018-01-26T11:53:42'}],
             'openhpc-compute-3': [{
-                'job_id': '688', 'user_group': 'john', 'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
-                'runtime': '01:53:03', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T11:53:42', 'end_time': '2018-01-26T11:53:42'}],
+                'job_id': '688', 'user_group': 'john',
+                'user_id': 'john', 'job_name': 'test_ompi.sh',
+                'job_state': 'RUNNING', 'runtime': '01:53:03',
+                'time_limit': '1-00:00:00',
+                'start_time': '2018-01-25T11:53:42',
+                'end_time': '2018-01-26T11:53:42'}],
             'openhpc-compute-4': [{
-                'job_id': '688', 'user_group': 'john', 'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
-                'runtime': '01:53:03', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T11:53:42', 'end_time': '2018-01-26T11:53:42'}],
+                'job_id': '688', 'user_group': 'john',
+                'user_id': 'john', 'job_name': 'test_ompi.sh',
+                'job_state': 'RUNNING', 'runtime': '01:53:03',
+                'time_limit': '1-00:00:00',
+                'start_time': '2018-01-25T11:53:42',
+                'end_time': '2018-01-26T11:53:42'}],
             'openhpc-compute-5': [{
-                'job_id': '688', 'user_group': 'john', 'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
-                'runtime': '01:53:03', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T11:53:42', 'end_time': '2018-01-26T11:53:42'}],
+                'job_id': '688', 'user_group': 'john',
+                'user_id': 'john', 'job_name': 'test_ompi.sh',
+                'job_state': 'RUNNING', 'runtime': '01:53:03',
+                'time_limit': '1-00:00:00',
+                'start_time': '2018-01-25T11:53:42',
+                'end_time': '2018-01-26T11:53:42'}],
             'openhpc-compute-6': [{
-                'job_id': '688', 'user_group': 'john', 'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
-                'runtime': '01:53:03', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T11:53:42', 'end_time': '2018-01-26T11:53:42'}],
+                'job_id': '688', 'user_group': 'john',
+                'user_id': 'john', 'job_name': 'test_ompi.sh',
+                'job_state': 'RUNNING', 'runtime': '01:53:03',
+                'time_limit': '1-00:00:00',
+                'start_time': '2018-01-25T11:53:42',
+                'end_time': '2018-01-26T11:53:42'}],
             'openhpc-compute-7': [{
-                'job_id': '688', 'user_group': 'john', 'user_id': 'john',
-                'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
-                'runtime': '01:53:03', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T11:53:42', 'end_time': '2018-01-26T11:53:42'}],
+                'job_id': '688', 'user_group': 'john',
+                'user_id': 'john', 'job_name': 'test_ompi.sh',
+                'job_state': 'RUNNING', 'runtime': '01:53:03',
+                'time_limit': '1-00:00:00',
+                'start_time': '2018-01-25T11:53:42',
+                'end_time': '2018-01-26T11:53:42'}],
             'openhpc-compute-8': [{
                 'job_id': '689', 'user_group': 'john', 'user_id': 'john',
                 'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
-                'runtime': '01:43:49', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T12:02:56', 'end_time': '2018-01-26T12:02:56'}],
+                'runtime': '01:43:49', 'time_limit': '1-00:00:00',
+                'start_time': '2018-01-25T12:02:56',
+                'end_time': '2018-01-26T12:02:56'}],
             'openhpc-compute-9': [{
                 'job_id': '689', 'user_group': 'john', 'user_id': 'john',
                 'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
-                'runtime': '01:43:49', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T12:02:56', 'end_time': '2018-01-26T12:02:56'}],
+                'runtime': '01:43:49', 'time_limit': '1-00:00:00',
+                'start_time': '2018-01-25T12:02:56',
+                'end_time': '2018-01-26T12:02:56'}],
             'openhpc-compute-10': [{
                 'job_id': '689', 'user_group': 'john', 'user_id': 'john',
                 'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
-                'runtime': '01:43:49', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T12:02:56', 'end_time': '2018-01-26T12:02:56'}],
+                'runtime': '01:43:49', 'time_limit': '1-00:00:00',
+                'start_time': '2018-01-25T12:02:56',
+                'end_time': '2018-01-26T12:02:56'}],
             'openhpc-compute-11': [{
                 'job_id': '689', 'user_group': 'john', 'user_id': 'john',
                 'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
-                'runtime': '01:43:49', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T12:02:56', 'end_time': '2018-01-26T12:02:56'}],
+                'runtime': '01:43:49', 'time_limit': '1-00:00:00',
+                'start_time': '2018-01-25T12:02:56',
+                'end_time': '2018-01-26T12:02:56'}],
             'openhpc-compute-12': [{
                 'job_id': '690', 'user_group': 'john', 'user_id': 'john',
                 'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
-                'runtime': '01:40:59', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T12:05:46', 'end_time': '2018-01-26T12:05:46'}],
+                'runtime': '01:40:59', 'time_limit': '1-00:00:00',
+                'start_time': '2018-01-25T12:05:46',
+                'end_time': '2018-01-26T12:05:46'}],
             'openhpc-compute-13': [{
                 'job_id': '690', 'user_group': 'john', 'user_id': 'john',
                 'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
-                'runtime': '01:40:59', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T12:05:46', 'end_time': '2018-01-26T12:05:46'}],
+                'runtime': '01:40:59', 'time_limit': '1-00:00:00',
+                'start_time': '2018-01-25T12:05:46',
+                'end_time': '2018-01-26T12:05:46'}],
             'openhpc-compute-14': [{
                 'job_id': '690', 'user_group': 'john', 'user_id': 'john',
                 'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
-                'runtime': '01:40:59', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T12:05:46', 'end_time': '2018-01-26T12:05:46'}],
+                'runtime': '01:40:59', 'time_limit': '1-00:00:00',
+                'start_time': '2018-01-25T12:05:46',
+                'end_time': '2018-01-26T12:05:46'}],
             'openhpc-compute-15': [{
                 'job_id': '690', 'user_group': 'john', 'user_id': 'john',
                 'job_name': 'test_ompi.sh', 'job_state': 'RUNNING',
-                'runtime': '01:40:59', 'time_limit': '1-00:00:00', 'start_time': '2018-01-25T12:05:46', 'end_time': '2018-01-26T12:05:46'}]
+                'runtime': '01:40:59', 'time_limit': '1-00:00:00',
+                'start_time': '2018-01-25T12:05:46',
+                'end_time': '2018-01-26T12:05:46'}]
         }
         self.maxDiff = None
         self.assertEqual(expected, actual)
@@ -323,26 +373,29 @@ class TestSlurm(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test__get_cluster_utilization_data(self):
-        allocated_nodes, reported_nodes = self.slurm._get_cluster_utilization_data()
+        allocated_nodes, reported_nodes = self. \
+            slurm._get_cluster_utilization_data()
         self.assertEqual(allocated_nodes, 20117847)
         self.assertEqual(reported_nodes, 23195520)
-
 
     def test__get_avg_job_size(self):
         avg_job_size = self.slurm._get_avg_job_size()
         self.assertEqual(avg_job_size, 415500)
 
     def test__get_queue_length(self):
-        queue_length  = self.slurm._get_queue_length()
+        queue_length = self.slurm._get_queue_length()
         self.assertEqual(queue_length, 30)
 
     def test__get_job_statistics(self):
-        self.slurm._get_job_statistics_data = self.slurm._get_job_statistics_data_failed
+        self.slurm._get_job_statistics_data = self. \
+            slurm._get_job_statistics_data_failed
         self.assertRaises(Exception, self.slurm._get_job_statistics, 1000)
 
-        self.slurm._get_job_statistics_data = self.slurm._get_job_statistics_data_success
-        ave_cpu, ave_disk_read, ave_disk_write, ave_pages, ave_cpu_freq, ave_rss, ave_vm_size, \
-        min_cpu, max_disk_read, max_disk_write, max_pages, max_rss, max_vm_size = \
+        self.slurm._get_job_statistics_data = self. \
+            slurm._get_job_statistics_data_success
+        ave_cpu, ave_disk_read, ave_disk_write, ave_pages, ave_cpu_freq, \
+            ave_rss, ave_vm_size, min_cpu, max_disk_read, \
+            max_disk_write, max_pages, max_rss, max_vm_size = \
             self.slurm._get_job_statistics(1000)
         self.assertEqual(ave_cpu, "00:05.000")
         self.assertEqual(ave_disk_read, "1.39M")
@@ -358,17 +411,18 @@ class TestSlurm(unittest.TestCase):
         self.assertEqual(max_rss, "126308K")
         self.assertEqual(max_vm_size, "21724660K")
 
-
     @mock.patch('monasca_agent.collector.checks.AgentCheck.gauge',
                 autospec=True)
     def test_check(self, mock_gauge):
-        self.slurm._get_job_statistics_data = self.slurm._get_job_statistics_data_success
+        self.slurm._get_job_statistics_data = self. \
+            slurm._get_job_statistics_data_success
         self.slurm.check('openhpc-login-0')
-        status_metric_name = '{}.{}'.format(slurm._METRIC_NAME_PREFIX, "job_status")
+        status_metric_name = '{}.{}'.format(
+            slurm._METRIC_NAME_PREFIX, "job_status")
 
         calls = [
             mock.call(mock.ANY, status_metric_name, 1,
-                      device_name='null', 
+                      device_name='null',
                       dimensions={
                           'user_id': 'john', 'job_id': "691",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
@@ -379,7 +433,7 @@ class TestSlurm(unittest.TestCase):
                           'time_limit': '1-00:00:00',
                           'start_time': '2018-01-26T12:05:46',
                           'end_time': '2018-01-27T12:05:46'
-                        }),
+                          }),
             mock.call(mock.ANY, status_metric_name, 1,
                       device_name='null',
                       dimensions={
@@ -392,9 +446,9 @@ class TestSlurm(unittest.TestCase):
                           'time_limit': '1-00:00:00',
                           'start_time': 'Unknown',
                           'end_time': 'Unknown'
-                        }),
+                          }),
             mock.call(mock.ANY, status_metric_name, 2,
-                      device_name='openhpc-compute-0', 
+                      device_name='openhpc-compute-0',
                       dimensions={
                           'user_id': 'john', 'job_id': "688",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
@@ -405,7 +459,7 @@ class TestSlurm(unittest.TestCase):
                           'time_limit': '1-00:00:00',
                           'start_time': '2018-01-25T11:53:42',
                           'end_time': '2018-01-26T11:53:42'
-                        }),
+                          }),
             mock.call(mock.ANY, status_metric_name, 2,
                       device_name='openhpc-compute-1', dimensions={
                           'user_id': 'john', 'job_id': "688",
@@ -417,9 +471,9 @@ class TestSlurm(unittest.TestCase):
                           'time_limit': '1-00:00:00',
                           'start_time': '2018-01-25T11:53:42',
                           'end_time': '2018-01-26T11:53:42'
-                        }),
+                          }),
             mock.call(mock.ANY, status_metric_name, 2,
-                      device_name='openhpc-compute-8', 
+                      device_name='openhpc-compute-8',
                       dimensions={
                           'user_id': 'john', 'job_id': "689",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
@@ -430,9 +484,9 @@ class TestSlurm(unittest.TestCase):
                           'time_limit': '1-00:00:00',
                           'start_time': '2018-01-25T12:02:56',
                           'end_time': '2018-01-26T12:02:56'
-                        }),
+                          }),
             mock.call(mock.ANY, status_metric_name, 2,
-                      device_name='openhpc-compute-9', 
+                      device_name='openhpc-compute-9',
                       dimensions={
                           'user_id': 'john', 'job_id': "689",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
@@ -443,9 +497,9 @@ class TestSlurm(unittest.TestCase):
                           'time_limit': '1-00:00:00',
                           'start_time': '2018-01-25T12:02:56',
                           'end_time': '2018-01-26T12:02:56'
-                        }),
+                          }),
             mock.call(mock.ANY, status_metric_name, 2,
-                      device_name='openhpc-compute-12', 
+                      device_name='openhpc-compute-12',
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
@@ -456,9 +510,9 @@ class TestSlurm(unittest.TestCase):
                           'time_limit': '1-00:00:00',
                           'start_time': '2018-01-25T12:05:46',
                           'end_time': '2018-01-26T12:05:46'
-                        }),
+                          }),
             mock.call(mock.ANY, status_metric_name, 2,
-                      device_name='openhpc-compute-13', 
+                      device_name='openhpc-compute-13',
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
@@ -469,15 +523,15 @@ class TestSlurm(unittest.TestCase):
                           'time_limit': '1-00:00:00',
                           'start_time': '2018-01-25T12:05:46',
                           'end_time': '2018-01-26T12:05:46'
-                        }),
+                          }),
             mock.call(mock.ANY, "cluster.slurm_utilization",
-                     20117847/23195520),
+                      20117847 / 23195520),
             mock.call(mock.ANY, "slurm.avg_job_size",
-                     415500),
+                      415500),
             mock.call(mock.ANY, "slurm.queue_length",
-                     30),
+                      30),
             mock.call(mock.ANY, "slurm.ave_cpu_mins", 5,
-                      device_name='openhpc-compute-13', 
+                      device_name='openhpc-compute-13',
                       dimensions={
                           'user_id': 'john', 'job_id': "690",
                           'user_group': 'john', 'instance': 'openhpc-login-0',
