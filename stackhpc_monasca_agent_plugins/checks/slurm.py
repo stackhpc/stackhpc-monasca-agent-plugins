@@ -28,30 +28,39 @@ _SLURM_LIST_JOBS_CMD = ['/usr/bin/scontrol', '-o', 'show', 'job']
 _SLURM_LIST_NODES_CMD = ['/usr/bin/scontrol', '-o', 'show', 'node']
 _SLURM_CLUSTER_UTILIZATION_CMD = ['/usr/bin/sreport', 'cluster', 'utilization']
 _SLURM_LIST_JOB_SIZES_CMD = ['sacct', '--allocations', '--allusers', '--state',
-    'RUNNING', '--format', 'TimeLimit']
+                             'RUNNING', '--format', 'TimeLimit']
 _SLURM_SDIAG_CMD = ['sdiag']
 _SLURM_JOB_STATISTICS = ['sudo', 'sstat', '-j', '<job_id>', '--allsteps',
-    '--noconvert', '--format', 'AveCPU,AveDiskRead,AveDiskWrite,AvePages,AveCPUFreq,AveRSS,'
-    'AveVMSize,MinCPU,MaxDiskRead,MaxDiskWrite,MaxPages,MaxRSS,MaxVMSize']
+                         '--noconvert', '--format',
+                         'AveCPU,AveDiskRead,AveDiskWrite,AvePages,'
+                         'AveCPUFreq,AveRSS,AveVMSize,MinCPU,MaxDiskRead,'
+                         'MaxDiskWrite,MaxPages,MaxRSS,MaxVMSize']
 
 _SLURM_JOB_FIELD_REGEX = ('^JobId=([\d]+)\sJobName=(.*?)\s'
-                          'UserId=([\w-]+\([\w-]+\))\sGroupId=([\w-]+\([\w-]+\))\s.*\s'
+                          'UserId=([\w-]+\([\w-]+\))\s'
+                          'GroupId=([\w-]+\([\w-]+\))\s.*\s'
                           'JobState=([\w]+)\s.*\sRunTime=([:\w-]+)\s'
                           'TimeLimit=([:\w-]+)\s.*\sStartTime=([:\w-]+)\s'
                           'EndTime=([:\w-]+)\s.*\sNodeList=(.*?)\s.*$')
 _SLURM_NODE_FIELD_REGEX = '^NodeName=(.*?)\s.*State=(.*?)\s.*$'
 _SLURM_NODE_SEQUENCE_REGEX = '^(.*)\[(.*)\]$'
-_SLURM_CLUSTER_UTILIZATION_REPORT_FIELD_REGEX = ('([\S]+)[\s]+([\d]+)[\s]+([\d]+)[\s]+'
-    '([\d]+)[\s]+([\d]+)[\s]+([\d]+)[\s]+([\d]+)')
-_SLURM_JOB_STATISTICS_REGEX = '^\s+([\S]+)\s+([\S]+)\s+([\S]+)\s+([\S]+)\s+([\S]+)\s+([\S]+)\s+' \
-    '([\S]+)\s+([\S]+)\s+([\S]+)\s+([\S]+)\s+([\S]+)\s+([\S]+)\s+([\S]+)'
+_SLURM_CLUSTER_UTILIZATION_REPORT_FIELD_REGEX = ('([\S]+)[\s]+([\d]+)[\s]+'
+                                                 '([\d]+)[\s]+([\d]+)[\s]+'
+                                                 '([\d]+)[\s]+([\d]+)[\s]+'
+                                                 '([\d]+)')
+_SLURM_JOB_STATISTICS_REGEX = '^\s+([\S]+)\s+([\S]+)\s+([\S]+)\s+([\S]+)' \
+                              '\s+([\S]+)\s+([\S]+)\s+([\S]+)\s+([\S]+)'  \
+                              '\s+([\S]+)\s+([\S]+)\s+([\S]+)\s+([\S]+)'  \
+                              '\s+([\S]+)'
 
 _JOB_STATE = {
-    "UNKNOWN": 0,  
+    "UNKNOWN": 0,
     "PENDING": 1,       # PD, Awaiting resource allocation
     "RUNNING": 2,       # R, Resources allocated and script executing
-    "SUSPENDED": 3,     # S, Job suspended and previously allocated resources released
-    "COMPLETING": 4,    # CG, in the process of completing, processes of a job still executing in the background
+    # S, Job suspended and previously allocated resources released
+    "SUSPENDED": 3,
+    # CG, in the process of completing
+    "COMPLETING": 4,
     "COMPLETED": 5      # CD, job terminated (successfully)
 }
 
@@ -77,19 +86,25 @@ class Slurm(checks.AgentCheck):
 
     @staticmethod
     def _get_raw_node_data():
-        return map(lambda str: str.rstrip(), Slurm._get_raw_data(_SLURM_LIST_NODES_CMD).splitlines())
+        return map(lambda str: str.rstrip(),
+                   Slurm._get_raw_data(_SLURM_LIST_NODES_CMD).splitlines())
 
     @staticmethod
     def _get_raw_job_data():
-        return map(lambda str: str.rstrip(), Slurm._get_raw_data(_SLURM_LIST_JOBS_CMD).splitlines())
+        return map(lambda str: str.rstrip(),
+                   Slurm._get_raw_data(_SLURM_LIST_JOBS_CMD).splitlines())
 
     @staticmethod
     def _get_raw_cluster_utilisation_report_data():
-        return map(lambda str: str.rstrip(), Slurm._get_raw_data(_SLURM_CLUSTER_UTILIZATION_CMD).splitlines())
+        return map(lambda str: str.rstrip(),
+                   Slurm._get_raw_data(_SLURM_CLUSTER_UTILIZATION_CMD)
+                   .splitlines())
 
     @staticmethod
     def _get_job_sizes_data():
-        return map(lambda str: str.rstrip(), Slurm._get_raw_data(_SLURM_LIST_JOB_SIZES_CMD).splitlines())
+        return map(lambda str: str.rstrip(),
+                   Slurm._get_raw_data(_SLURM_LIST_JOB_SIZES_CMD)
+                   .splitlines())
 
     @staticmethod
     def _get_sdiag_data():
@@ -98,9 +113,11 @@ class Slurm(checks.AgentCheck):
     @staticmethod
     def _get_job_statistics_data(job_id):
         _SLURM_JOB_STATISTICS[3] = str(job_id)
-	log.debug("stats_commands: {}".format(str(_SLURM_JOB_STATISTICS)))
-	log.debug("raw_job_stats_data: {}".format(str(Slurm._get_raw_data(_SLURM_JOB_STATISTICS).splitlines())))
-        return map(lambda str: str.rstrip(), Slurm._get_raw_data(_SLURM_JOB_STATISTICS).splitlines())
+        log.debug("stats_commands: {}".format(str(_SLURM_JOB_STATISTICS)))
+        log.debug("raw_job_stats_data: {}".format(
+            str(Slurm._get_raw_data(_SLURM_JOB_STATISTICS).splitlines())))
+        return map(lambda str: str.rstrip(),
+                   Slurm._get_raw_data(_SLURM_JOB_STATISTICS).splitlines())
 
     @staticmethod
     def _extract_node_names(field):
@@ -158,23 +175,26 @@ class Slurm(checks.AgentCheck):
             # Ignore pending jobs for now
             nodes = self._extract_node_names(m.group(10))
             for node in nodes:
-                jobs[node] = (jobs[node] if (node in jobs) else []) + [copy.deepcopy(job)]
+                jobs[node] = (jobs[node] if (node in jobs)
+                              else []) + [copy.deepcopy(job)]
         return jobs
 
     def _get_nodes(self):
         raw_node_data = self._get_raw_node_data()
         pattern = re.compile(_SLURM_NODE_FIELD_REGEX)
-        nodes = { 'null': None }
+        nodes = {'null': None}
         for node in raw_node_data:
             m = pattern.match(node)
             nodes[m.group(1)] = {'node_state': m.group(2)}
         return nodes
 
     def _get_cluster_utilization_data(self):
-        raw_cluster_utilization_report_data = self._get_raw_cluster_utilisation_report_data()[-1]
+        raw_cluster_utilization_report_data = self. \
+            _get_raw_cluster_utilisation_report_data()[-1]
         pattern = re.compile(_SLURM_CLUSTER_UTILIZATION_REPORT_FIELD_REGEX)
         groups = pattern.match(raw_cluster_utilization_report_data)
-        allocated_nodes, reported_nodes = int(groups.group(2)), int(groups.group(7))
+        allocated_nodes, reported_nodes = int(
+            groups.group(2)), int(groups.group(7))
         return (allocated_nodes, reported_nodes)
 
     @staticmethod
@@ -184,37 +204,45 @@ class Slurm(checks.AgentCheck):
         day = day_time[0] if len(day_time) > 1 else 0
         try:
             (hrs, mins, secs) = day_time[-1].split(":")
-        except:
+        except Exception:
             hrs = 0
             (mins, secs) = day_time[-1].split(":")
         try:
             secs = int(secs)
-        except:
+        except Exception:
             secs = 0
         return (((int(day) * 24 + int(hrs)) * 60 + int(mins)) * 60 + secs)
 
     def _get_avg_job_size(self):
         raw_job_sizes_data = self._get_job_sizes_data()[2:]
         job_sizes = map(Slurm.timelimit_str_to_mins, raw_job_sizes_data)
-        return sum(job_sizes)/len(job_sizes)
+        return sum(job_sizes) / len(job_sizes)
 
     def _get_queue_length(self):
         raw_sdiag_data = self._get_sdiag_data()
-        queue_length = int(re.search("Last queue length:\s([\d]+)", raw_sdiag_data).group(1))
+        queue_length = int(
+            re.search("Last queue length:\s([\d]+)", raw_sdiag_data).group(1))
         return queue_length
 
     def _get_job_statistics(self, job_id):
-        job_statistics_data = self._get_job_statistics_data(job_id);
+        job_statistics_data = self._get_job_statistics_data(job_id)
         if len(job_statistics_data) > 2:
-	    log.debug("job_statistics_data: {}".format(str(job_statistics_data)))
-            groups = re.match(_SLURM_JOB_STATISTICS_REGEX, job_statistics_data[2]);
-            ave_cpu, ave_disk_read, ave_disk_write, ave_pages, ave_cpu_freq, ave_rss, ave_vm_size, \
-            min_cpu, max_disk_read, max_disk_write, max_pages, max_rss, max_vm_size = \
-                groups.group(1), groups.group(2), groups.group(3), groups.group(4), groups.group(5), \
-                groups.group(6), groups.group(7), groups.group(8), groups.group(9), groups.group(10), \
-                groups.group(11), groups.group(12), groups.group(13)
-            return (ave_cpu, ave_disk_read, ave_disk_write, ave_pages, ave_cpu_freq, ave_rss, ave_vm_size, \
-            min_cpu, max_disk_read, max_disk_write, max_pages, max_rss, max_vm_size)
+            log.debug("job_statistics_data: {}".format(
+                str(job_statistics_data)))
+            groups = re.match(_SLURM_JOB_STATISTICS_REGEX,
+                              job_statistics_data[2])
+            ave_cpu, ave_disk_read, ave_disk_write, ave_pages, ave_cpu_freq, \
+                ave_rss, ave_vm_size, min_cpu, max_disk_read, max_disk_write, \
+                max_pages, max_rss, max_vm_size = \
+                groups.group(1), groups.group(2), groups.group(3), \
+                groups.group(4), groups.group(5), groups.group(6), \
+                groups.group(7), groups.group(8), groups.group(9), \
+                groups.group(10), groups.group(11), groups.group(12), \
+                groups.group(13)
+            return (ave_cpu, ave_disk_read, ave_disk_write, ave_pages,
+                    ave_cpu_freq, ave_rss, ave_vm_size, min_cpu,
+                    max_disk_read, max_disk_write, max_pages, max_rss,
+                    max_vm_size)
         else:
             raise Exception("failed to collect statistics from sstat")
 
@@ -224,98 +252,138 @@ class Slurm(checks.AgentCheck):
         for node in self._get_nodes():
             jobs = jobs_by_node.get(node, [])
             for job_info in jobs:
-                job_info.update({ 'hostname': node })
+                job_info.update({'hostname': node})
                 # TODO - If node is down set to -1?
-                metric_value = _JOB_STATE.get(job_info.pop('job_state', 'UNKNOWN'), _JOB_STATE.get('UNKNOWN'))
+                metric_value = _JOB_STATE.get(job_info.pop(
+                    'job_state', 'UNKNOWN'), _JOB_STATE.get('UNKNOWN'))
                 # Save the job name as metadata. For one, it's likely to have
                 # characters which aren't valid in a dimension.
-                value_meta = { 
-                    'job_name': job_info.pop('job_name', 'job_' + job_info.get('job_id')),
+                value_meta = {
+                    'job_name': job_info.pop('job_name',
+                                             'job_' + job_info.get('job_id')),
                     'runtime': job_info.pop('runtime', "Unknown"),
                     'time_limit': job_info.pop('time_limit', "Unknown"),
                     'start_time': job_info.pop('start_time', "Unknown"),
                     'end_time': job_info.pop('end_time', "Unknown")
                 }
                 dimensions = self._set_dimensions(job_info, instance)
-                
+
                 self.gauge(metric_name,
-                        metric_value,
-                        device_name=node,
-                        dimensions=dimensions,
-                        value_meta=value_meta)
-                log.debug('Collected slurm status for job {0} node {1}'.format(job_info.get('job_id'), node))
+                           metric_value,
+                           device_name=node,
+                           dimensions=dimensions,
+                           value_meta=value_meta)
+                log.debug('Collected slurm status for job {0} node {1}'.format(
+                    job_info.get('job_id'), node))
 
                 if metric_value == 2:
                     try:
-                        ave_cpu, ave_disk_read, ave_disk_write, ave_pages, ave_cpu_freq, ave_rss, ave_vm_size, \
-                        min_cpu, max_disk_read, max_disk_write, max_pages, max_rss, max_vm_size = \
+                        ave_cpu, ave_disk_read, ave_disk_write, ave_pages, \
+                            ave_cpu_freq, ave_rss, ave_vm_size, min_cpu, \
+                            max_disk_read, max_disk_write, max_pages,  \
+                            max_rss, max_vm_size = \
                             self._get_job_statistics(job_info.get('job_id'))
                         self.gauge("slurm.ave_cpu_mins",
-                            Slurm.timelimit_str_to_mins(ave_cpu),
-                            device_name=node,
-                            dimensions=dimensions)
+                                   Slurm.timelimit_str_to_mins(ave_cpu),
+                                   device_name=node,
+                                   dimensions=dimensions)
                         self.gauge("slurm.ave_disk_read_mb",
-                            float(re.match("^([.\d]+)M?", ave_disk_read).group(1)),
-                            device_name=node,
-                            dimensions=dimensions)
+                                   float(
+                                       re.match("^([.\d]+)M?", ave_disk_read)
+                                       .group(1)
+                                   ),
+                                   device_name=node,
+                                   dimensions=dimensions)
                         self.gauge("slurm.ave_disk_write_mb",
-                            float(re.match("^([.\d]+)M?", ave_disk_write).group(1)),
-                            device_name=node,
-                            dimensions=dimensions)
+                                   float(
+                                       re.match("^([.\d]+)M?", ave_disk_write)
+                                       .group(1)
+                                   ),
+                                   device_name=node,
+                                   dimensions=dimensions)
                         self.gauge("slurm.ave_pages_kb",
-                        float(re.match("^([.\d]+)K?", ave_pages).group(1)),
-                            device_name=node,
-                            dimensions=dimensions)
+                                   float(
+                                       re.match("^([.\d]+)K?", ave_pages)
+                                       .group(1)
+                                   ),
+                                   device_name=node,
+                                   dimensions=dimensions)
                         self.gauge("slurm.ave_cpu_freq_khz",
-                            float(re.match("^([.\d]+)K?", ave_cpu_freq).group(1)),
-                            device_name=node,
-                            dimensions=dimensions)
+                                   float(
+                                       re.match("^([.\d]+)K?", ave_cpu_freq)
+                                       .group(1)
+                                   ),
+                                   device_name=node,
+                                   dimensions=dimensions)
                         self.gauge("slurm.ave_rss_kb",
-                            float(re.match("^([.\d]+)K?", ave_rss).group(1)),
-                            device_name=node,
-                            dimensions=dimensions)
+                                   float(
+                                       re.match("^([.\d]+)K?", ave_rss)
+                                       .group(1)
+                                   ),
+                                   device_name=node,
+                                   dimensions=dimensions)
                         self.gauge("slurm.ave_vm_size_kb",
-                            float(re.match("^([.\d]+)K?", ave_vm_size).group(1)),
-                            device_name=node,
-                            dimensions=dimensions)
+                                   float(
+                                       re.match("^([.\d]+)K?", ave_vm_size)
+                                       .group(1)
+                                   ),
+                                   device_name=node,
+                                   dimensions=dimensions)
                         self.gauge("slurm.min_cpu_mins",
-                            Slurm.timelimit_str_to_mins(min_cpu),
-                            device_name=node,
-                            dimensions=dimensions)
+                                   Slurm.timelimit_str_to_mins(min_cpu),
+                                   device_name=node,
+                                   dimensions=dimensions)
                         self.gauge("slurm.max_disk_read_mb",
-                            float(re.match("^([.\d]+)M?", max_disk_read).group(1)),
-                            device_name=node,
-                            dimensions=dimensions)
+                                   float(
+                                       re.match("^([.\d]+)M?", max_disk_read)
+                                       .group(1)
+                                   ),
+                                   device_name=node,
+                                   dimensions=dimensions)
                         self.gauge("slurm.max_disk_write_mb",
-                            float(re.match("^([.\d]+)M?", max_disk_write).group(1)),
-                            device_name=node,
-                            dimensions=dimensions)
+                                   float(
+                                       re.match("^([.\d]+)M?", max_disk_write)
+                                       .group(1)
+                                   ),
+                                   device_name=node,
+                                   dimensions=dimensions)
                         self.gauge("slurm.max_pages_kb",
-                        float(re.match("^([.\d]+)K?", max_pages).group(1)),
-                            device_name=node,
-                            dimensions=dimensions)
+                                   float(
+                                       re.match("^([.\d]+)K?", max_pages)
+                                       .group(1)
+                                   ),
+                                   device_name=node,
+                                   dimensions=dimensions)
                         self.gauge("slurm.max_rss_kb",
-                            float(re.match("^([.\d]+)K?", max_rss).group(1)),
-                            device_name=node,
-                            dimensions=dimensions)
+                                   float(
+                                       re.match("^([.\d]+)K?", max_rss)
+                                       .group(1)
+                                   ),
+                                   device_name=node,
+                                   dimensions=dimensions)
                         self.gauge("slurm.max_vm_size_kb",
-                            float(re.match("^([.\d]+)K?", max_vm_size).group(1)),
-                            device_name=node,
-                            dimensions=dimensions)
-                        log.debug('Collected slurm statistics for job {0} node {1}'.format(job_info.get('job_id'), node))
+                                   float(
+                                       re.match("^([.\d]+)K?", max_vm_size)
+                                       .group(1)
+                                   ),
+                                   device_name=node,
+                                   dimensions=dimensions)
+                        log.debug('Collected slurm statistics for'
+                                  'job {0} node {1}'
+                                  .format(job_info.get('job_id'), node))
                     except Exception as e:
                         log.debug("slurm exception: {}".format(e.message))
                         traceback.print_exc()
-
         try:
-            allocated_nodes, reported_nodes = self._get_cluster_utilization_data()
+            allocated_nodes, reported_nodes = self. \
+                _get_cluster_utilization_data()
             self.gauge("cluster.slurm_utilization",
                        allocated_nodes / reported_nodes)
             avg_job_size = self._get_avg_job_size()
             self.gauge("slurm.avg_job_size",
-                    avg_job_size)
+                       avg_job_size)
             queue_length = self._get_queue_length()
             self.gauge("slurm.queue_length",
                        queue_length)
-        except Exception as exp:
+        except Exception:
             pass
