@@ -11,3 +11,4 @@ Includes:
 
 * Infiniband metrics
 * Slurm (proof-of-concept)
+* nVidia GPUs
