@@ -28,11 +28,11 @@ _METRIC_NAME = "job_status"
 _SLURM_LIST_JOBS_CMD = ['/usr/bin/scontrol', '-o', 'show', 'job']
 _SLURM_LIST_NODES_CMD = ['/usr/bin/scontrol', '-o', 'show', 'node']
 
-_SLURM_JOB_FIELD_REGEX = ('^JobId=([\d]+)\sJobName=(.*?)\sUserI'
-                          'd=([\w-]+\([\w-]+\)) GroupId=([\w-]+\([\w-]+\))\s.*'
-                          'JobState=([\w]+)\s.*\sNodeList=(.*?)\s.*$')
-_SLURM_NODE_FIELD_REGEX = '^NodeName=(.*?)\s.*State=(.*?)\s.*$'
-_SLURM_NODE_SEQUENCE_REGEX = '^(.*)\[(.*)\]$'
+_SLURM_JOB_FIELD_REGEX = (r'^JobId=([\d]+)\sJobName=(.*?)\sUserI'
+                          r'd=([\w-]+\([\w-]+\)) GroupId=([\w-]+\([\w-]+\))\s.'
+                          r'*JobState=([\w]+)\s.*\sNodeList=(.*?)\s.*$')
+_SLURM_NODE_FIELD_REGEX = r'^NodeName=(.*?)\s.*State=(.*?)\s.*$'
+_SLURM_NODE_SEQUENCE_REGEX = r'^(.*)\[(.*)\]$'
 
 
 class Slurm(checks.AgentCheck):
@@ -91,7 +91,7 @@ class Slurm(checks.AgentCheck):
         :param field: Username or group and number
         :return: Username or group without number
         """
-        return re.sub('[(\d+)]', '', field)
+        return re.sub(r'[(\d+)]', '', field)
 
     def _get_jobs(self):
         raw_job_data = self._get_raw_job_data()
