@@ -20,7 +20,6 @@ import pynvml
 log = logging.getLogger(__name__)
 
 _METRIC_NAME_PREFIX = "nvidia"
-_METRIC_NAME = "job_status"
 
 
 class Nvidia(checks.AgentCheck):
