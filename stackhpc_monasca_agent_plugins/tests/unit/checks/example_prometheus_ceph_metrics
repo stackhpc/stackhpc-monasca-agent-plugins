@@ -1,0 +1,12 @@
+
+# HELP ceph_osd_op_out_bytes Client operations total read size
+# TYPE ceph_osd_op_out_bytes counter
+ceph_osd_op_out_bytes{ceph_daemon="osd.1"} 965648904094.0
+ceph_osd_op_out_bytes{ceph_daemon="osd.2"} 1300737243057.0
+ceph_osd_op_out_bytes{ceph_daemon="osd.3"} 2433806018643.0
+# HELP ceph_cluster_total_used_bytes DF total_used_bytes
+# TYPE ceph_cluster_total_used_bytes gauge
+ceph_cluster_total_used_bytes 227277146636288.0
+# HELP ceph_cluster_total_bytes DF total_bytes
+# TYPE ceph_cluster_total_bytes gauge
+ceph_cluster_total_bytes 1083703445897216.0
