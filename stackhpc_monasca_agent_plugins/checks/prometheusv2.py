@@ -44,6 +44,11 @@ class MetricStore(object):
         metric = self.metrics.get(name)
         return metric['type'] if metric else None
 
+    def set_type(self, name, metric_type):
+        metric = self.metrics.get(name)
+        if metric:
+            metric['type'] = metric_type
+
     def get_metrics_by_type(self, metric_type):
         return {
             k: v for k, v in self.metrics.items() if v['type'] == metric_type}
@@ -184,9 +189,17 @@ class PrometheusV2(checks.AgentCheck):
 
             Useful for mislabelled counters and taking derivatives of
             non-counters. Eg. rate of change of used space on Ceph cluster."""
+        if derived_metric_name == conf['series']:
+            # Mark the raw series directly as a 'counter' type rather than
+            # deriving a new series from it.
+            metrics.set_type(derived_metric_name, 'counter')
+            return
+
         samples = metrics.get_samples(conf['series'])
         if not samples:
             return
+
+        # Create a new series of 'counter' type from the raw series.
         for sample in samples:
             metrics.add_sample(derived_metric_name, 'counter',
                                sample['value'], sample['labels'])

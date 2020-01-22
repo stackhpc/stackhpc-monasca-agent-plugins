@@ -192,7 +192,8 @@ Example:
         opp: counter
 
 Note that this requires ``counters_to_rates`` to be enabled, which is the
-default.
+default, and if the same name is used for the existing series, the existing
+series will be converted to a rate in situ, overwriting the existing counter.
 
 Full example configuration
 ==========================
