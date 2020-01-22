@@ -172,17 +172,17 @@ class PrometheusV2(checks.AgentCheck):
         for derived_metric_name, conf in derived_metrics.items():
             # Assume derived metrics config has already been checked so
             # we don't need to check it again here
-            if conf['opp'] == 'divide':
+            if conf['op'] == 'divide':
                 self._divide_metric_pairs(derived_metric_name, conf, metrics)
-            elif conf['opp'] == 'sum':
+            elif conf['op'] == 'sum':
                 self._sum_metric_series(derived_metric_name, conf, metrics)
-            elif conf['opp'] == 'counter':
+            elif conf['op'] == 'counter':
                 self._metric_series_to_counter(
                     derived_metric_name, conf, metrics)
             else:
                 self.log.warning(
                     "Skipping derived metric: {}, operation not "
-                    "supported: {}.".format(derived_metric_name, conf['opp']))
+                    "supported: {}.".format(derived_metric_name, conf['op']))
 
     def _metric_series_to_counter(self, derived_metric_name, conf, metrics):
         """ Create a new counter metric from an existing metric.

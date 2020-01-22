@@ -134,7 +134,7 @@ currently fail.
       ceph_cluster_usage:
         x: ceph_cluster_total_used_bytes
         y: ceph_cluster_total_bytes
-        opp: divide
+        op: divide
 
 sum
 ^^^
@@ -165,7 +165,7 @@ Example:
       ceph_osd_in_sum:
         series: ceph_osd_in
         key: ceph_daemon
-        opp: sum
+        op: sum
 
 counter
 ^^^^^^^
@@ -200,7 +200,7 @@ Example:
     derived_metrics:
       ceph_pool_wr_bytes_total:
         series: ceph_pool_wr_bytes
-        opp: counter
+        op: counter
 
 Note that this requires ``counters_to_rates`` to be enabled, which is the
 default, and if the same name is used for the existing series, the existing
@@ -227,17 +227,17 @@ Full example configuration
 	  ceph_cluster_usage:
 	    x: ceph_cluster_total_used_bytes
 	    y: ceph_cluster_total_bytes
-	    opp: divide
+	    op: divide
 	  ceph_osd_in_sum:
 	    series: ceph_osd_in
 	    key: ceph_daemon
-	    opp: sum
+	    op: sum
 	  ceph_pool_wr_bytes_total:
 	    series: ceph_pool_wr_bytes
-	    opp: counter
+	    op: counter
 	  ceph_pool_rd_bytes_total:
 	    series: ceph_pool_rd_bytes
-	    opp: counter
+	    op: counter
 
 Note that more than one endpoint can be monitored by adding additional
 entries on the ``instances`` list.

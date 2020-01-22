@@ -56,7 +56,7 @@ class TestPrometheus(unittest.TestCase):
         instance = {
             'metric_endpoint': 'mocked_endpoint',
             'counters_to_rates': True,
-            'derived_metrics': 'ceph_cluster_usage:\n   x: ceph_cluster_total_used_bytes\n   y: ceph_cluster_total_bytes\n   opp: divide\n   type: gauge\n',  # noqa
+            'derived_metrics': 'ceph_cluster_usage:\n   x: ceph_cluster_total_used_bytes\n   y: ceph_cluster_total_bytes\n   op: divide\n   type: gauge\n',  # noqa
             'default_dimensions': {'ceph': 'app'}
         }
 
@@ -109,7 +109,7 @@ class TestPrometheus(unittest.TestCase):
         instance = {
             'metric_endpoint': 'mocked_endpoint',
             'counters_to_rates': True,
-            'derived_metrics': 'ceph_cluster_total_used_bytes_total:\n   series: ceph_cluster_total_used_bytes\n   opp: counter\n',  # noqa
+            'derived_metrics': 'ceph_cluster_total_used_bytes_total:\n   series: ceph_cluster_total_used_bytes\n   op: counter\n',  # noqa
             'default_dimensions': {'ceph': 'app'}
         }
 
@@ -258,7 +258,7 @@ class TestPrometheus(unittest.TestCase):
              # Change the metric type from a gauge to a counter so that it
              # gets converted to a rate 'in place' and without creating a
              # new series.
-            'derived_metrics': 'ceph_cluster_total_used_bytes:\n   series: ceph_cluster_total_used_bytes\n   opp: counter\n',  # noqa
+            'derived_metrics': 'ceph_cluster_total_used_bytes:\n   series: ceph_cluster_total_used_bytes\n   op: counter\n',  # noqa
             'default_dimensions': {'ceph': 'app'}
         }
 
@@ -309,7 +309,7 @@ class TestPrometheus(unittest.TestCase):
         instance = {
             'metric_endpoint': 'mocked_endpoint',
             'counters_to_rates': True,
-            'derived_metrics': 'ceph_cluster_usage:\n   x: ceph_cluster_total_used_bytes\n   y: ceph_cluster_total_bytes\n   opp: divide\n   type: gauge\n',  # noqa
+            'derived_metrics': 'ceph_cluster_usage:\n   x: ceph_cluster_total_used_bytes\n   y: ceph_cluster_total_bytes\n   op: divide\n   type: gauge\n',  # noqa
             'default_dimensions': {'ceph': 'app'}
         }
 
@@ -589,7 +589,7 @@ class TestPrometheus(unittest.TestCase):
     def test_derived_metric_sum_series(self, mock_write_metric, mock_req):
         instance = {
             'metric_endpoint': 'mocked_endpoint',
-            'derived_metrics': 'ceph_osd_op_out_bytes_total_sum:\n   series: ceph_osd_op_out_bytes_total\n   key: ceph_daemon\n   opp: sum\n',  # noqa
+            'derived_metrics': 'ceph_osd_op_out_bytes_total_sum:\n   series: ceph_osd_op_out_bytes_total\n   key: ceph_daemon\n   op: sum\n',  # noqa
             'counters_to_rates': False,
             'default_dimensions': {'ceph': 'app'},
         }
@@ -643,7 +643,7 @@ class TestPrometheus(unittest.TestCase):
             self, mock_write_metric, mock_req):
         instance = {
             'metric_endpoint': 'mocked_endpoint',
-            'derived_metrics': 'ceph_osd_op_out_bytes_total_sum:\n   series: ceph_osd_op_out_bytes_total\n   key: ceph_daemon\n   opp: sum\n',  # noqa
+            'derived_metrics': 'ceph_osd_op_out_bytes_total_sum:\n   series: ceph_osd_op_out_bytes_total\n   key: ceph_daemon\n   op: sum\n',  # noqa
         }
 
         mock_req.return_value.headers = {
