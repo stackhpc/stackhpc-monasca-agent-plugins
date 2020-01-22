@@ -303,7 +303,9 @@ class PrometheusV2(checks.AgentCheck):
                                dimensions=metric['dimensions'])
 
     def _get_metric_func(self, metric, counters_to_rates):
-        if counters_to_rates and metric['type'] == 'counter':
+        if counters_to_rates and (
+                metric['type'] == 'counter' or (
+                metric['name'].endswith('_total'))):
             metric_func = self.rate
             metric['name'] += "_rate"
         else:

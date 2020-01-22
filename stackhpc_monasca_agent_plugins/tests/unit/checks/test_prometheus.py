@@ -158,6 +158,98 @@ class TestPrometheus(unittest.TestCase):
                 'prometheusv2.requests.get')
     @mock.patch('stackhpc_monasca_agent_plugins.checks.'
                 'prometheusv2.PrometheusV2._write_metric')
+    def test_derived_counter_metric_autoconvert_total(
+            self, mock_write_metric, mock_req):
+        # HAProxy exporter has some metrics which are counters and end in
+        # _total, but are labelled as gauges. Here we check the autoconversion
+        # of those to counters.
+        instance = {
+            'metric_endpoint': 'mocked_endpoint',
+            'remove_hostname': True
+        }
+
+        mock_req.return_value.headers = {
+            'Content-Type': 'text/plain;charset=utf-8'}
+
+        filepath = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            'example_prometheus_haproxy_metrics')
+        with open(filepath, 'r') as f:
+            example_scrape_output = f.read()
+        mock_req.return_value.text = example_scrape_output
+
+        self.prometheus.check(instance)
+        calls = [
+            mock.call(mock.ANY,
+                      'haproxy_backend_http_total_time_average_seconds',
+                      0.0,
+                      dimensions={'backend': 'cinder_api'}),
+            mock.call(mock.ANY,
+                      'haproxy_backend_http_total_time_average_seconds',
+                      0.944,
+                      dimensions={'backend': 'elasticsearch'}),
+            mock.call(mock.ANY,
+                      'haproxy_server_downtime_seconds_total_rate',
+                      0.0,
+                      dimensions={'backend': 'cinder_api',
+                                  'server': 'foo'}),
+            mock.call(mock.ANY,
+                      'haproxy_server_downtime_seconds_total_rate',
+                      0.0,
+                      dimensions={'backend': 'elasticsearch',
+                                  'server': 'bar'}),
+        ]
+        mock_write_metric.assert_has_calls(calls, any_order=True)
+
+    @mock.patch('stackhpc_monasca_agent_plugins.checks.'
+                'prometheusv2.requests.get')
+    @mock.patch('stackhpc_monasca_agent_plugins.checks.'
+                'prometheusv2.PrometheusV2._write_metric')
+    def test_derived_counter_metric_autoconvert_total_disabled(
+            self, mock_write_metric, mock_req):
+        instance = {
+            'metric_endpoint': 'mocked_endpoint',
+            'counters_to_rates': False,
+            'remove_hostname': True
+        }
+
+        mock_req.return_value.headers = {
+            'Content-Type': 'text/plain;charset=utf-8'}
+
+        filepath = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            'example_prometheus_haproxy_metrics')
+        with open(filepath, 'r') as f:
+            example_scrape_output = f.read()
+        mock_req.return_value.text = example_scrape_output
+
+        self.prometheus.check(instance)
+        calls = [
+            mock.call(mock.ANY,
+                      'haproxy_backend_http_total_time_average_seconds',
+                      0.0,
+                      dimensions={'backend': 'cinder_api'}),
+            mock.call(mock.ANY,
+                      'haproxy_backend_http_total_time_average_seconds',
+                      0.944,
+                      dimensions={'backend': 'elasticsearch'}),
+            mock.call(mock.ANY,
+                      'haproxy_server_downtime_seconds_total',
+                      0.0,
+                      dimensions={'backend': 'cinder_api',
+                                  'server': 'foo'}),
+            mock.call(mock.ANY,
+                      'haproxy_server_downtime_seconds_total',
+                      0.0,
+                      dimensions={'backend': 'elasticsearch',
+                                  'server': 'bar'}),
+        ]
+        mock_write_metric.assert_has_calls(calls, any_order=True)
+
+    @mock.patch('stackhpc_monasca_agent_plugins.checks.'
+                'prometheusv2.requests.get')
+    @mock.patch('stackhpc_monasca_agent_plugins.checks.'
+                'prometheusv2.PrometheusV2._write_metric')
     def test_derived_counter_metric_same_name(
             self, mock_write_metric, mock_req):
         instance = {
