@@ -656,4 +656,65 @@ class TestPrometheus(unittest.TestCase):
         self.prometheus.check(instance)
         mock_write_metric.assert_not_called()
 
+    @mock.patch('stackhpc_monasca_agent_plugins.checks.'
+                'prometheusv2.requests.get')
+    @mock.patch('stackhpc_monasca_agent_plugins.checks.'
+                'prometheusv2.PrometheusV2._write_metric')
+    def test_metric_label_whitelist(
+            self, mock_write_metric, mock_req):
+        instance = {
+            'metric_endpoint': 'mocked_endpoint',
+            'label_whitelist': ['name',
+                                'state',
+                                'hostname',
+                                'interface']
+        }
+
+        mock_req.return_value.headers = {
+            'Content-Type': 'text/plain;charset=utf-8'}
+
+        filepath = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            'example_prometheus_cadvisor_metrics')
+        with open(filepath, 'r') as f:
+            example_scrape_output = f.read()
+        mock_req.return_value.text = example_scrape_output
+
+        self.prometheus.check(instance)
+        calls = [
+            mock.call(mock.ANY,
+                      'container_tasks_state',
+                      0.0,
+                      dimensions={'hostname': 'squawky',
+                                  'state': 'iowaiting'}),
+            mock.call(mock.ANY,
+                      'container_tasks_state',
+                      0.0,
+                      dimensions={'hostname': 'squawky',
+                                  'state': 'running'}),
+            mock.call(mock.ANY,
+                      'container_tasks_state',
+                      0.0,
+                      dimensions={'hostname': 'squawky',
+                                  'state': 'sleeping'}),
+            mock.call(mock.ANY,
+                      'container_tasks_state',
+                      0.0,
+                      dimensions={'hostname': 'squawky',
+                                  'name': 'horizon',
+                                  'state': 'iowaiting'}),
+            mock.call(mock.ANY,
+                      'container_tasks_state',
+                      0.0,
+                      dimensions={'hostname': 'squawky',
+                                  'name': 'ceph-mgr-2ck10u19n03',
+                                  'state': 'stopped'}),
+            mock.call(mock.ANY,
+                      'container_tasks_state',
+                      0.0,
+                      dimensions={'hostname': 'squawky',
+                                  'name': 'ceph-mgr-2ck10u19n03',
+                                  'state': 'uninterruptible'}),
+        ]
+        mock_write_metric.assert_has_calls(calls, any_order=True)
 # Test func (get rid of Mock.ANY)

@@ -25,10 +25,13 @@ import yaml
 
 
 class MetricStore(object):
-    def __init__(self, whitelist=None):
+    def __init__(self, whitelist=None, label_whitelist=None):
         self.metrics = defaultdict(lambda: defaultdict(list))
+        # This whitelist is a list of regexes hence why we don't use a set
         self.whitelist_regex = ('(?:' + ')|(?:'.join(whitelist) + ')'
                                 if whitelist else None)
+        self.label_whitelist = (set(label_whitelist)
+                                if label_whitelist else None)
 
     def add_sample(self, name, metric_type, value, labels={}):
         sample = {'labels': labels, 'value': value}
@@ -53,16 +56,23 @@ class MetricStore(object):
         return {
             k: v for k, v in self.metrics.items() if v['type'] == metric_type}
 
-    def get_metrics(self, apply_whitelist=True):
+    def get_metrics(self):
         metrics_list = []
         for metric_name, metric in self.metrics.items():
-            if apply_whitelist and self.whitelist_regex and not re.match(
+            if self.whitelist_regex and not re.match(
                     self.whitelist_regex, metric_name):
+                # Filter out metric
                 continue
             for sample in metric.get('samples'):
+                # Filter labels
+                if self.label_whitelist:
+                    labels = {k: v for k, v in sample['labels'].items(
+                    ) if k in self.label_whitelist}
+                else:
+                    labels = sample['labels']
                 metric = {'name': metric_name,
                           'value': sample['value'],
-                          'dimensions': sample['labels'],
+                          'dimensions': labels,
                           'type': metric['type']}
                 metrics_list.append(metric)
         return metrics_list
@@ -122,7 +132,8 @@ class PrometheusV2(checks.AgentCheck):
                         result_content_type))
 
     def _send_metrics(self, metric_families, dimensions, instance):
-        metrics = MetricStore(whitelist=instance.get('whitelist'))
+        metrics = MetricStore(whitelist=instance.get('whitelist'),
+                              label_whitelist=instance.get('label_whitelist'))
         self._parse_metrics(metrics, metric_families)
         self._compute_derived_metrics(metrics, instance)
         self._write_out_metrics(metrics, dimensions, instance)
