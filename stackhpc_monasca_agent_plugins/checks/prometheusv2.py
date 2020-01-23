@@ -52,10 +52,6 @@ class MetricStore(object):
         if metric:
             metric['type'] = metric_type
 
-    def get_metrics_by_type(self, metric_type):
-        return {
-            k: v for k, v in self.metrics.items() if v['type'] == metric_type}
-
     def get_metrics(self):
         metrics_list = []
         for metric_name, metric in self.metrics.items():
