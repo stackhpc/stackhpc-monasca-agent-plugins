@@ -99,6 +99,24 @@ Example:
       - ceph_cluster_total_bytes
       - ceph_osd_op.*
 
+Label whitelist
+===============
+
+A whitelist of labels can be provided to reduce the number of unique time
+series created in Monasca. This is useful for exporters such as cAdvisor which
+produce many highly variable labels attached to each metric, of which some may
+not even be valid dimensions in Monasca.
+
+Example:
+
+.. code-block:: yaml
+
+    label_whitelist:
+      - name
+      - state
+      - hostname
+      - interface
+
 derived_metrics
 ===============
 
