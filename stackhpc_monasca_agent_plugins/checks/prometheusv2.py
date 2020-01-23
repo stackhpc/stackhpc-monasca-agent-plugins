@@ -44,6 +44,11 @@ class MetricStore(object):
         metric = self.metrics.get(name)
         return metric['type'] if metric else None
 
+    def set_type(self, name, metric_type):
+        metric = self.metrics.get(name)
+        if metric:
+            metric['type'] = metric_type
+
     def get_metrics_by_type(self, metric_type):
         return {
             k: v for k, v in self.metrics.items() if v['type'] == metric_type}
@@ -167,26 +172,34 @@ class PrometheusV2(checks.AgentCheck):
         for derived_metric_name, conf in derived_metrics.items():
             # Assume derived metrics config has already been checked so
             # we don't need to check it again here
-            if conf['opp'] == 'divide':
+            if conf['op'] == 'divide':
                 self._divide_metric_pairs(derived_metric_name, conf, metrics)
-            elif conf['opp'] == 'sum':
+            elif conf['op'] == 'sum':
                 self._sum_metric_series(derived_metric_name, conf, metrics)
-            elif conf['opp'] == 'counter':
+            elif conf['op'] == 'counter':
                 self._metric_series_to_counter(
                     derived_metric_name, conf, metrics)
             else:
                 self.log.warning(
                     "Skipping derived metric: {}, operation not "
-                    "supported: {}.".format(derived_metric_name, conf['opp']))
+                    "supported: {}.".format(derived_metric_name, conf['op']))
 
     def _metric_series_to_counter(self, derived_metric_name, conf, metrics):
         """ Create a new counter metric from an existing metric.
 
             Useful for mislabelled counters and taking derivatives of
             non-counters. Eg. rate of change of used space on Ceph cluster."""
+        if derived_metric_name == conf['series']:
+            # Mark the raw series directly as a 'counter' type rather than
+            # deriving a new series from it.
+            metrics.set_type(derived_metric_name, 'counter')
+            return
+
         samples = metrics.get_samples(conf['series'])
         if not samples:
             return
+
+        # Create a new series of 'counter' type from the raw series.
         for sample in samples:
             metrics.add_sample(derived_metric_name, 'counter',
                                sample['value'], sample['labels'])
@@ -290,7 +303,9 @@ class PrometheusV2(checks.AgentCheck):
                                dimensions=metric['dimensions'])
 
     def _get_metric_func(self, metric, counters_to_rates):
-        if counters_to_rates and metric['type'] == 'counter':
+        if counters_to_rates and (
+                metric['type'] == 'counter' or (
+                metric['name'].endswith('_total'))):
             metric_func = self.rate
             metric['name'] += "_rate"
         else:

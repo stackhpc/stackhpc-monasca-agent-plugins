@@ -134,7 +134,7 @@ currently fail.
       ceph_cluster_usage:
         x: ceph_cluster_total_used_bytes
         y: ceph_cluster_total_bytes
-        opp: divide
+        op: divide
 
 sum
 ^^^
@@ -165,22 +165,33 @@ Example:
       ceph_osd_in_sum:
         series: ceph_osd_in
         key: ceph_daemon
-        opp: sum
+        op: sum
 
 counter
 ^^^^^^^
 
 In many cases you will want to use ``counters_to_rates`` to automatically
-create counters from rates. However, sometimes Prometheus metrics may not
-be marked as counters correctly, or you may want to calculate the rate
-of change of a gauge. For example, the rate of change of remaining capacity
-would be a useful derivative of a gauge on a Ceph cluster. In this case
-you can use the ``counter`` operation to generate a rate from an
-arbitrary metric. The new metric assumes the name specified by the
-configuration key. For example in this case, a series of metrics called
+create counters from rates. As such this setting is enabled by default.
+However, sometimes Prometheus metrics may not be marked as counters
+correctly, or you may wish to calculate the rate of change of a gauge, or
+even of an existing rate.
+
+To minimise user configuration, any metric ending with ``_total`` which is not
+marked as a counter will be converted automatically to a rate when
+``counters_to_rates`` is ``True``. This is because, by Prometheus convention,
+any metric ending with ``_total`` should be a counter. In this case the metric
+name will be appended with ``_rate`` to create the name of the new series,
+and the original series will remain.
+
+For metrics which do not end in ``_total`` and/or are not marked as
+counters it may still be useful to convert the series to a rate. For
+example, the rate of change of remaining capacity would be a useful
+derivative of a gauge on a Ceph cluster. In this case you can use
+the ``counter`` operation to generate a rate from an arbitrary metric.
+The new metric assumes the name specified by the configuration key. For
+example in this case, a series of metrics called
 ``ceph_pool_wr_bytes_total_rate`` would be created from the metric series
 ``ceph_pool_wr_bytes``.
-
 
 Example:
 
@@ -189,10 +200,11 @@ Example:
     derived_metrics:
       ceph_pool_wr_bytes_total:
         series: ceph_pool_wr_bytes
-        opp: counter
+        op: counter
 
 Note that this requires ``counters_to_rates`` to be enabled, which is the
-default.
+default, and if the same name is used for the existing series, the existing
+series will be converted to a rate in situ, overwriting the existing counter.
 
 Full example configuration
 ==========================
@@ -215,17 +227,17 @@ Full example configuration
 	  ceph_cluster_usage:
 	    x: ceph_cluster_total_used_bytes
 	    y: ceph_cluster_total_bytes
-	    opp: divide
+	    op: divide
 	  ceph_osd_in_sum:
 	    series: ceph_osd_in
 	    key: ceph_daemon
-	    opp: sum
+	    op: sum
 	  ceph_pool_wr_bytes_total:
 	    series: ceph_pool_wr_bytes
-	    opp: counter
+	    op: counter
 	  ceph_pool_rd_bytes_total:
 	    series: ceph_pool_rd_bytes
-	    opp: counter
+	    op: counter
 
 Note that more than one endpoint can be monitored by adding additional
 entries on the ``instances`` list.
