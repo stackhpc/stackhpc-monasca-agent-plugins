@@ -105,6 +105,61 @@ class TestPrometheus(unittest.TestCase):
                 'prometheusv2.requests.get')
     @mock.patch('stackhpc_monasca_agent_plugins.checks.'
                 'prometheusv2.PrometheusV2._write_metric')
+    def test_check_derived_metric_divide_by_zero(
+            self, mock_write_metric, mock_req):
+        instance = {
+            'metric_endpoint': 'mocked_endpoint',
+            'counters_to_rates': True,
+            'derived_metrics': 'ceph_cluster_usage:\n   x: ceph_cluster_total_used_bytes\n   y: ceph_cluster_total_bytes\n   op: divide\n   type: gauge\n',  # noqa
+            'default_dimensions': {'ceph': 'app'}
+        }
+
+        mock_req.return_value.headers = {
+            'Content-Type': 'text/plain;charset=utf-8'}
+
+        # Fake condition which will generate a divide by zero
+        modified_scrape_output = self.example_scrape_output.replace(
+            'ceph_cluster_total_bytes 1083703445897216.0',
+            'ceph_cluster_total_bytes 0.0')
+        mock_req.return_value.text = modified_scrape_output
+
+        self.prometheus.check(instance)
+        calls = [
+            mock.call(mock.ANY,
+                      'ceph_cluster_total_used_bytes',
+                      227277146636288.0,
+                      dimensions={'ceph': 'app',
+                                  'hostname': 'squawky'}),
+            mock.call(mock.ANY,
+                      'ceph_cluster_total_bytes',
+                      0.0,
+                      dimensions={'ceph': 'app',
+                                  'hostname': 'squawky'}),
+            mock.call(mock.ANY,
+                      'ceph_osd_op_out_bytes_total_rate',
+                      965648904094.0,
+                      dimensions={'ceph': 'app',
+                                  'ceph_daemon': 'osd.1',
+                                  'hostname': 'squawky'}),
+            mock.call(mock.ANY,
+                      'ceph_osd_op_out_bytes_total_rate',
+                      1300737243057.0,
+                      dimensions={'ceph': 'app',
+                                  'ceph_daemon': 'osd.2',
+                                  'hostname': 'squawky'}),
+            mock.call(mock.ANY,
+                      'ceph_osd_op_out_bytes_total_rate',
+                      2433806018643.0,
+                      dimensions={'ceph': 'app',
+                                  'ceph_daemon': 'osd.3',
+                                  'hostname': 'squawky'}),
+        ]
+        mock_write_metric.assert_has_calls(calls, any_order=True)
+
+    @mock.patch('stackhpc_monasca_agent_plugins.checks.'
+                'prometheusv2.requests.get')
+    @mock.patch('stackhpc_monasca_agent_plugins.checks.'
+                'prometheusv2.PrometheusV2._write_metric')
     def test_derived_counter_metric(self, mock_write_metric, mock_req):
         instance = {
             'metric_endpoint': 'mocked_endpoint',
