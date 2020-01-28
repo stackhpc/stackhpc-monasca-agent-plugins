@@ -286,6 +286,12 @@ class PrometheusV2(checks.AgentCheck):
 
         # Create derived metric
         for metric_hash in x_metrics.keys():
+            if y_metrics[metric_hash]['value'] == 0:
+                self.log.warning(
+                    "Skipping derived metric: {} with labels: {}. "
+                    "Denominator is zero.".format(
+                        derived_metric_name, x_metrics[metric_hash]['labels']))
+                continue
             value = x_metrics[metric_hash]['value'] / \
                 y_metrics[metric_hash]['value']
             metrics.add_sample(derived_metric_name, x_type,
