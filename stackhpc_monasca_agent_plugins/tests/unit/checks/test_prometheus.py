@@ -310,9 +310,9 @@ class TestPrometheus(unittest.TestCase):
         instance = {
             'metric_endpoint': 'mocked_endpoint',
             'counters_to_rates': True,
-             # Change the metric type from a gauge to a counter so that it
-             # gets converted to a rate 'in place' and without creating a
-             # new series.
+            # Change the metric type from a gauge to a counter so that it
+            # gets converted to a rate 'in place' and without creating a
+            # new series.
             'derived_metrics': 'ceph_cluster_total_used_bytes:\n   series: ceph_cluster_total_used_bytes\n   op: counter\n',  # noqa
             'default_dimensions': {'ceph': 'app'}
         }
