@@ -309,21 +309,18 @@ class PrometheusV2(checks.AgentCheck):
         counters_to_rates = instance.get('counters_to_rates', True)
         for metric in metrics.get_metrics():
             metric['dimensions'].update(dimensions)
-            metric_func = self._get_metric_func(metric, counters_to_rates)
-            self._write_metric(metric_func,
+            if counters_to_rates and (
+                    metric['type'] == 'counter' or (
+                    metric['name'].endswith('_total'))):
+                self._write_metric(self.rate,
+                                   metric['name'] + "_rate",
+                                   metric['value'],
+                                   dimensions=metric['dimensions'])
+
+            self._write_metric(self.gauge,
                                metric['name'],
                                metric['value'],
                                dimensions=metric['dimensions'])
-
-    def _get_metric_func(self, metric, counters_to_rates):
-        if counters_to_rates and (
-                metric['type'] == 'counter' or (
-                metric['name'].endswith('_total'))):
-            metric_func = self.rate
-            metric['name'] += "_rate"
-        else:
-            metric_func = self.gauge
-        return metric_func
 
     def _write_metric(self, metric_func, name, value, dimensions):
         metric_func(name, value, dimensions)
