@@ -10,7 +10,6 @@ incubator, with the ultimate aim to merge any effective plugins into the Monasca
 
 Includes:
 
-* Infiniband metrics
 * Slurm (proof-of-concept)
 * nVidia GPUs
 * Prometheus (proof-of-concept)
