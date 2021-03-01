@@ -13,8 +13,9 @@
 # under the License.
 
 import logging
+
 import monasca_agent.collector.checks as checks
-import pynvml
+from py3nvml import py3nvml as pynvml
 
 
 log = logging.getLogger(__name__)
@@ -31,7 +32,7 @@ class Nvidia(checks.AgentCheck):
             try:
                 return f(*args, **kw)
             except pynvml.NVMLError as err:
-                if pynvml.NVML_ERROR_NOT_SUPPORTED in err:
+                if err == pynvml.NVMLError(pynvml.NVML_ERROR_NOT_SUPPORTED):
                     log.info('Not supported: {}'.format(f.__name__))
                     return {}
                 else:
