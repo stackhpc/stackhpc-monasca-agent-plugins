@@ -33,8 +33,8 @@ class MetricStore(object):
         self.label_whitelist = (set(label_whitelist)
                                 if label_whitelist else None)
 
-    def add_sample(self, name, metric_type, value, labels={}):
-        sample = {'labels': labels, 'value': value}
+    def add_sample(self, name, metric_type, value, labels={}, timestamp=None):
+        sample = {'labels': labels, 'value': value, 'timestamp': timestamp}
         self.metrics[name]['samples'].append(sample)
 
         # Let this be set once and error if it doesn't match?
@@ -69,6 +69,7 @@ class MetricStore(object):
                 metric = {'name': metric_name,
                           'value': sample['value'],
                           'dimensions': labels,
+                          'timestamp': sample['timestamp'],
                           'type': metric['type']}
                 metrics_list.append(metric)
         return metrics_list
@@ -138,9 +139,10 @@ class PrometheusV2(checks.AgentCheck):
         """Load metrics into a store which can be queried later"""
         for metric_family in metric_families:
             for metric in metric_family.samples:
-                metric_name = metric[0]
-                metric_labels = metric[1]
-                metric_value = float(metric[2])
+                metric_name = metric.name
+                metric_labels = metric.labels
+                metric_value = float(metric.value)
+                metric_timestamp = metric.timestamp
 
                 if PrometheusV2._skip_metric(metric_value):
                     self.log.debug(
@@ -154,7 +156,8 @@ class PrometheusV2(checks.AgentCheck):
                 metric_store.add_sample(metric_name,
                                         metric_family.type,
                                         metric_value,
-                                        metric_dimensions)
+                                        metric_dimensions,
+                                        metric_timestamp)
 
     @staticmethod
     def _skip_metric(metric_value):
@@ -315,12 +318,14 @@ class PrometheusV2(checks.AgentCheck):
                 self._write_metric(self.rate,
                                    metric['name'] + "_rate",
                                    metric['value'],
+                                   timestamp=metric['timestamp'],
                                    dimensions=metric['dimensions'])
 
             self._write_metric(self.gauge,
                                metric['name'],
                                metric['value'],
+                               timestamp=metric['timestamp'],
                                dimensions=metric['dimensions'])
 
-    def _write_metric(self, metric_func, name, value, dimensions):
-        metric_func(name, value, dimensions)
+    def _write_metric(self, metric_func, name, value, timestamp, dimensions):
+        metric_func(name, value, timestamp=timestamp, dimensions=dimensions)

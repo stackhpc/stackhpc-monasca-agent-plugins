@@ -1,2 +1,2 @@
 nvidia-ml-py
-prometheus_client
+prometheus-client>=0.8.0

@@ -41,12 +41,14 @@ class MockPrometheusPlugin(prometheus.PrometheusV2):
 
 class TestPrometheus(unittest.TestCase):
     def setUp(self):
-        filepath = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            'example_prometheus_ceph_metrics')
-        with open(filepath, 'r') as f:
-            self.example_scrape_output = f.read()
+        self.example = self.scrape_file('example_prometheus_ceph_metrics')
         self.prometheus = MockPrometheusPlugin()
+
+    def scrape_file(self, filename):
+        filepath = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), filename)
+        with open(filepath, 'r') as f:
+            return f.read()
 
     @mock.patch('stackhpc_monasca_agent_plugins.checks.'
                 'prometheusv2.requests.get')
@@ -62,58 +64,67 @@ class TestPrometheus(unittest.TestCase):
 
         mock_req.return_value.headers = {
             'Content-Type': 'text/plain;charset=utf-8'}
-        mock_req.return_value.text = self.example_scrape_output
+        mock_req.return_value.text = self.example
         self.prometheus.check(instance)
         calls = [
             mock.call(mock.ANY,
                       'ceph_cluster_total_used_bytes',
                       227277146636288.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_cluster_total_bytes',
                       1083703445897216.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       965648904094.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.1',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       1300737243057.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.2',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       2433806018643.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.3',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total',
                       965648904094.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.1',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total',
                       1300737243057.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.2',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total',
                       2433806018643.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.3',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_cluster_usage',
                       0.2097226390639752,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'})
         ]
@@ -136,7 +147,7 @@ class TestPrometheus(unittest.TestCase):
             'Content-Type': 'text/plain;charset=utf-8'}
 
         # Fake condition which will generate a divide by zero
-        modified_scrape_output = self.example_scrape_output.replace(
+        modified_scrape_output = self.example.replace(
             'ceph_cluster_total_bytes 1083703445897216.0',
             'ceph_cluster_total_bytes 0.0')
         mock_req.return_value.text = modified_scrape_output
@@ -146,28 +157,33 @@ class TestPrometheus(unittest.TestCase):
             mock.call(mock.ANY,
                       'ceph_cluster_total_used_bytes',
                       227277146636288.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_cluster_total_bytes',
                       0.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       965648904094.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.1',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       1300737243057.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.2',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       2433806018643.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.3',
                                   'hostname': 'squawky'}),
@@ -188,39 +204,45 @@ class TestPrometheus(unittest.TestCase):
 
         mock_req.return_value.headers = {
             'Content-Type': 'text/plain;charset=utf-8'}
-        mock_req.return_value.text = self.example_scrape_output
+        mock_req.return_value.text = self.example
         self.prometheus.check(instance)
         calls = [
             mock.call(mock.ANY,
                       'ceph_cluster_total_used_bytes',
                       227277146636288.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_cluster_total_used_bytes_total_rate',
                       227277146636288.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_cluster_total_bytes',
                       1083703445897216.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       965648904094.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.1',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       1300737243057.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.2',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       2433806018643.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.3',
                                   'hostname': 'squawky'}),
@@ -244,31 +266,31 @@ class TestPrometheus(unittest.TestCase):
         mock_req.return_value.headers = {
             'Content-Type': 'text/plain;charset=utf-8'}
 
-        filepath = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            'example_prometheus_haproxy_metrics')
-        with open(filepath, 'r') as f:
-            example_scrape_output = f.read()
-        mock_req.return_value.text = example_scrape_output
+        example = self.scrape_file('example_prometheus_haproxy_metrics')
+        mock_req.return_value.text = example
 
         self.prometheus.check(instance)
         calls = [
             mock.call(mock.ANY,
                       'haproxy_backend_http_total_time_average_seconds',
                       0.0,
+                      timestamp=None,
                       dimensions={'backend': 'cinder_api'}),
             mock.call(mock.ANY,
                       'haproxy_backend_http_total_time_average_seconds',
                       0.944,
+                      timestamp=None,
                       dimensions={'backend': 'elasticsearch'}),
             mock.call(mock.ANY,
                       'haproxy_server_downtime_seconds_total_rate',
                       0.0,
+                      timestamp=None,
                       dimensions={'backend': 'cinder_api',
                                   'server': 'foo'}),
             mock.call(mock.ANY,
                       'haproxy_server_downtime_seconds_total_rate',
                       0.0,
+                      timestamp=None,
                       dimensions={'backend': 'elasticsearch',
                                   'server': 'bar'}),
         ]
@@ -289,31 +311,31 @@ class TestPrometheus(unittest.TestCase):
         mock_req.return_value.headers = {
             'Content-Type': 'text/plain;charset=utf-8'}
 
-        filepath = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            'example_prometheus_haproxy_metrics')
-        with open(filepath, 'r') as f:
-            example_scrape_output = f.read()
-        mock_req.return_value.text = example_scrape_output
+        example = self.scrape_file('example_prometheus_haproxy_metrics')
+        mock_req.return_value.text = example
 
         self.prometheus.check(instance)
         calls = [
             mock.call(mock.ANY,
                       'haproxy_backend_http_total_time_average_seconds',
                       0.0,
+                      timestamp=None,
                       dimensions={'backend': 'cinder_api'}),
             mock.call(mock.ANY,
                       'haproxy_backend_http_total_time_average_seconds',
                       0.944,
+                      timestamp=None,
                       dimensions={'backend': 'elasticsearch'}),
             mock.call(mock.ANY,
                       'haproxy_server_downtime_seconds_total',
                       0.0,
+                      timestamp=None,
                       dimensions={'backend': 'cinder_api',
                                   'server': 'foo'}),
             mock.call(mock.ANY,
                       'haproxy_server_downtime_seconds_total',
                       0.0,
+                      timestamp=None,
                       dimensions={'backend': 'elasticsearch',
                                   'server': 'bar'}),
         ]
@@ -337,34 +359,39 @@ class TestPrometheus(unittest.TestCase):
 
         mock_req.return_value.headers = {
             'Content-Type': 'text/plain;charset=utf-8'}
-        mock_req.return_value.text = self.example_scrape_output
+        mock_req.return_value.text = self.example
         self.prometheus.check(instance)
         calls = [
             mock.call(mock.ANY,
                       'ceph_cluster_total_used_bytes_rate',
                       227277146636288.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_cluster_total_bytes',
                       1083703445897216.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       965648904094.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.1',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       1300737243057.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.2',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       2433806018643.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.3',
                                   'hostname': 'squawky'}),
@@ -388,34 +415,39 @@ class TestPrometheus(unittest.TestCase):
 
         mock_req.return_value.headers = {
             'Content-Type': 'text/plain;charset=utf-8'}
-        mock_req.return_value.text = self.example_scrape_output
+        mock_req.return_value.text = self.example
         self.prometheus.check(instance)
         calls = [
             mock.call(mock.ANY,
                       'ceph_cluster_total_used_bytes',
                       227277146636288.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_cluster_total_bytes',
                       1083703445897216.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       965648904094.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.1',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       1300737243057.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.2',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       2433806018643.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.3',
                                   'hostname': 'squawky'}),
@@ -433,30 +465,35 @@ class TestPrometheus(unittest.TestCase):
 
         mock_req.return_value.headers = {
             'Content-Type': 'text/plain;charset=utf-8'}
-        mock_req.return_value.text = self.example_scrape_output
+        mock_req.return_value.text = self.example
         self.prometheus.check(instance)
         calls = [
             mock.call(mock.ANY,
                       'ceph_cluster_total_used_bytes',
                       227277146636288.0,
+                      timestamp=None,
                       dimensions={'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_cluster_total_bytes',
                       1083703445897216.0,
+                      timestamp=None,
                       dimensions={'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       965648904094.0,
+                      timestamp=None,
                       dimensions={'ceph_daemon': 'osd.1',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       1300737243057.0,
+                      timestamp=None,
                       dimensions={'ceph_daemon': 'osd.2',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       2433806018643.0,
+                      timestamp=None,
                       dimensions={'ceph_daemon': 'osd.3',
                                   'hostname': 'squawky'}),
         ]
@@ -475,34 +512,39 @@ class TestPrometheus(unittest.TestCase):
 
         mock_req.return_value.headers = {
             'Content-Type': 'text/plain;charset=utf-8'}
-        mock_req.return_value.text = self.example_scrape_output
+        mock_req.return_value.text = self.example
         self.prometheus.check(instance)
         calls = [
             mock.call(mock.ANY,
                       'ceph_cluster_total_used_bytes',
                       227277146636288.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_cluster_total_bytes',
                       1083703445897216.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       965648904094.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.1',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       1300737243057.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.2',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_rate',
                       2433806018643.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.3',
                                   'hostname': 'squawky'}),
@@ -522,34 +564,39 @@ class TestPrometheus(unittest.TestCase):
 
         mock_req.return_value.headers = {
             'Content-Type': 'text/plain;charset=utf-8'}
-        mock_req.return_value.text = self.example_scrape_output
+        mock_req.return_value.text = self.example
         self.prometheus.check(instance)
         calls = [
             mock.call(mock.ANY,
                       'ceph_cluster_total_used_bytes',
                       227277146636288.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_cluster_total_bytes',
                       1083703445897216.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total',
                       965648904094.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.1',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total',
                       1300737243057.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.2',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total',
                       2433806018643.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.3',
                                   'hostname': 'squawky'}),
@@ -570,17 +617,19 @@ class TestPrometheus(unittest.TestCase):
 
         mock_req.return_value.headers = {
             'Content-Type': 'text/plain;charset=utf-8'}
-        mock_req.return_value.text = self.example_scrape_output
+        mock_req.return_value.text = self.example
         self.prometheus.check(instance)
         calls = [
             mock.call(mock.ANY,
                       'ceph_cluster_total_used_bytes',
                       227277146636288.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_cluster_total_bytes',
                       1083703445897216.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
         ]
@@ -602,34 +651,39 @@ class TestPrometheus(unittest.TestCase):
 
         mock_req.return_value.headers = {
             'Content-Type': 'text/plain;charset=utf-8'}
-        mock_req.return_value.text = self.example_scrape_output
+        mock_req.return_value.text = self.example
         self.prometheus.check(instance)
         calls = [
             mock.call(mock.ANY,
                       'ceph_cluster_total_used_bytes',
                       227277146636288.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_cluster_total_bytes',
                       1083703445897216.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total',
                       965648904094.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.1',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total',
                       1300737243057.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.2',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total',
                       2433806018643.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.3',
                                   'hostname': 'squawky'}),
@@ -669,40 +723,46 @@ class TestPrometheus(unittest.TestCase):
 
         mock_req.return_value.headers = {
             'Content-Type': 'text/plain;charset=utf-8'}
-        mock_req.return_value.text = self.example_scrape_output
+        mock_req.return_value.text = self.example
         self.prometheus.check(instance)
         calls = [
             mock.call(mock.ANY,
                       'ceph_cluster_total_used_bytes',
                       227277146636288.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_cluster_total_bytes',
                       1083703445897216.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total',
                       965648904094.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.1',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total',
                       1300737243057.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.2',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total',
                       2433806018643.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'ceph_daemon': 'osd.3',
                                   'hostname': 'squawky'}),
             mock.call(mock.ANY,
                       'ceph_osd_op_out_bytes_total_sum',
                       4700192165794.0,
+                      timestamp=None,
                       dimensions={'ceph': 'app',
                                   'hostname': 'squawky'}),
         ]
@@ -746,48 +806,92 @@ class TestPrometheus(unittest.TestCase):
         mock_req.return_value.headers = {
             'Content-Type': 'text/plain;charset=utf-8'}
 
-        filepath = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            'example_prometheus_cadvisor_metrics')
-        with open(filepath, 'r') as f:
-            example_scrape_output = f.read()
-        mock_req.return_value.text = example_scrape_output
+        example = self.scrape_file('example_prometheus_cadvisor_metrics')
+        mock_req.return_value.text = example
 
         self.prometheus.check(instance)
         calls = [
             mock.call(mock.ANY,
                       'container_tasks_state',
                       0.0,
+                      timestamp=None,
                       dimensions={'hostname': 'squawky',
                                   'state': 'iowaiting'}),
             mock.call(mock.ANY,
                       'container_tasks_state',
                       0.0,
+                      timestamp=None,
                       dimensions={'hostname': 'squawky',
                                   'state': 'running'}),
             mock.call(mock.ANY,
                       'container_tasks_state',
                       0.0,
+                      timestamp=None,
                       dimensions={'hostname': 'squawky',
                                   'state': 'sleeping'}),
             mock.call(mock.ANY,
                       'container_tasks_state',
                       0.0,
+                      timestamp=None,
                       dimensions={'hostname': 'squawky',
                                   'name': 'horizon',
                                   'state': 'iowaiting'}),
             mock.call(mock.ANY,
                       'container_tasks_state',
                       0.0,
+                      timestamp=None,
                       dimensions={'hostname': 'squawky',
                                   'name': 'ceph-mgr-2ck10u19n03',
                                   'state': 'stopped'}),
             mock.call(mock.ANY,
                       'container_tasks_state',
                       0.0,
+                      timestamp=None,
                       dimensions={'hostname': 'squawky',
                                   'name': 'ceph-mgr-2ck10u19n03',
                                   'state': 'uninterruptible'}),
+        ]
+        mock_write_metric.assert_has_calls(calls, any_order=True)
+
+    @mock.patch('stackhpc_monasca_agent_plugins.checks.'
+                'prometheusv2.requests.get')
+    @mock.patch('stackhpc_monasca_agent_plugins.checks.'
+                'prometheusv2.PrometheusV2._write_metric')
+    def test_metric_with_timestamp(self, mock_write_metric, mock_req):
+        instance = {
+            'metric_endpoint': 'mocked_endpoint',
+            'label_whitelist': ['instance', 'code'],
+        }
+
+        mock_req.return_value.headers = {
+            'Content-Type': 'text/plain;charset=utf-8'}
+
+        example = self.scrape_file('example_prometheus_timestamped_metrics')
+        mock_req.return_value.text = example
+
+        self.prometheus.check(instance)
+        calls = [
+            mock.call(mock.ANY,
+                      'haproxy_backend_http_responses_total',
+                      1.0,
+                      timestamp=1606747450.61,
+                      dimensions={'hostname': 'squawky',
+                                  'instance': '10.103.1.11:9101',
+                                  'code': '4xx'}),
+            mock.call(mock.ANY,
+                      'haproxy_backend_http_responses_total',
+                      2.0,
+                      timestamp=1606747450.61,
+                      dimensions={'hostname': 'squawky',
+                                  'instance': '10.103.1.12:9101',
+                                  'code': '4xx'}),
+            mock.call(mock.ANY,
+                      'haproxy_backend_http_responses_total',
+                      3.0,
+                      timestamp=1606747450.61,
+                      dimensions={'hostname': 'squawky',
+                                  'instance': '10.103.1.13:9101',
+                                  'code': '4xx'}),
         ]
         mock_write_metric.assert_has_calls(calls, any_order=True)
 # Test func (get rid of Mock.ANY)
