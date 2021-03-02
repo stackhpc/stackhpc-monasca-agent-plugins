@@ -1,2 +1,2 @@
-nvidia-ml-py
+py3nvml>=0.2.6
 prometheus-client>=0.8.0

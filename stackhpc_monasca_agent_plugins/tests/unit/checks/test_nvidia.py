@@ -15,8 +15,7 @@
 import unittest
 
 import mock
-import pynvml
-
+from py3nvml import py3nvml as pynvml
 import stackhpc_monasca_agent_plugins.checks.nvidia as nvidia
 
 
@@ -34,19 +33,19 @@ class TestNvidiaNetwork(unittest.TestCase):
     def setUp(self):
         self.nvidia = MockNvidiaPlugin()
 
-    @mock.patch('pynvml.nvmlSystemGetDriverVersion',
+    @mock.patch('py3nvml.py3nvml.nvmlSystemGetDriverVersion',
                 autospec=True)
     def test_dummy_property(self, mock_nvml_call):
         mock_nvml_call.return_value = 'v1.2.3'
-        actual = MockNvidiaPlugin._get_driver_version()
+        actual = self.nvidia._get_driver_version()
         expected = {'driver_version': 'v1.2.3'}
         self.assertDictEqual(actual, expected)
 
-    @mock.patch('pynvml.nvmlSystemGetDriverVersion',
+    @mock.patch('py3nvml.py3nvml.nvmlSystemGetDriverVersion',
                 autospec=True)
     def test_unsupported_property(self, mock_nvml_call):
         excp = pynvml.NVMLError(pynvml.NVML_ERROR_NOT_SUPPORTED)
         mock_nvml_call.side_effect = excp
-        actual = MockNvidiaPlugin._get_driver_version()
+        actual = self.nvidia._get_driver_version()
         expected = {}
         self.assertDictEqual(actual, expected)
