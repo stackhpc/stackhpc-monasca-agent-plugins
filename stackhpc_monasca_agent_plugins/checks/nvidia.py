@@ -16,11 +16,13 @@ import logging
 
 import monasca_agent.collector.checks as checks
 from py3nvml import py3nvml as pynvml
+import stackhpc_monasca_agent_plugins.checks.nvidiasmi as nvidiasmi
 
 
 log = logging.getLogger(__name__)
 
 _METRIC_NAME_PREFIX = "nvidia"
+_VGPU_METRIC_NAME_PREFIX = "vgpu"
 
 
 class Nvidia(checks.AgentCheck):
@@ -211,6 +213,33 @@ class Nvidia(checks.AgentCheck):
         pynvml.nvmlShutdown()
         return all_info
 
+    @staticmethod
+    def _get_vgpu_info():
+        cnsmi = nvidiasmi.Nvidiasmi()
+        cnsmi.get_vgpu_info()
+        vgpu_count = cnsmi.get_vgpu_count()
+        all_info = []
+
+        for i in range(0, vgpu_count):
+            dimensions = {}
+            dimensions.update(cnsmi.get_vgpu_id(i))
+            dimensions.update(cnsmi.get_vgpu_uuid(i))
+            dimensions.update(cnsmi.get_vgpu_vm_uuid(i))
+            dimensions.update(cnsmi.get_vgpu_vm_name(i))
+
+            measurements = {}
+            measurements.update(cnsmi.get_vgpu_utilisation_stats(i))
+
+            vgpu_name = "{}_{}".format(
+                cnsmi.get_vgpu_name(i).get('name'),
+                cnsmi.get_vgpu_id(i).get('id'))
+            all_info.append({
+                'name': vgpu_name,
+                'dimensions': dimensions,
+                'measurements': measurements
+            })
+        return all_info
+
     def check(self, instance):
         for gpu_metrics in Nvidia._get_gpu_info():
             for measurement, value in gpu_metrics['measurements'].items():
@@ -223,3 +252,16 @@ class Nvidia(checks.AgentCheck):
                            value_meta=None)
             log.debug('Collected info for GPU {}'.format(
                 gpu_metrics.get('name')))
+
+
+        for vgpu_metrics in Nvidia._get_vgpu_info():
+            for measurement, value in vgpu_metrics['measurements'].items():
+                metric_name = '{0}.{1}.{2}'.format(
+                    _METRIC_NAME_PREFIX, _VGPU_METRIC_NAME_PREFIX, measurement)
+                self.gauge(metric_name,
+                           value,
+                           device_name=vgpu_metrics.get('name'),
+                           dimensions=vgpu_metrics.get('dimensions'),
+                           value_meta=None)
+            log.debug('Collected info for vGPU {}'.format(
+                vgpu_metrics.get('name')))
