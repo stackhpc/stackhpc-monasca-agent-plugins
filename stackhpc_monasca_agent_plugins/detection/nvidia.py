@@ -26,7 +26,7 @@ class NvidiaDetect(monasca_setup.detection.Plugin):
 
     def _detect(self):
         self.available = False
-        if 'nvidia' not in subprocess.check_output(
+        if b'nvidia' not in subprocess.check_output(
                 ["lshw", "-C", "display"]).lower():
             LOG.info('No nVidia hardware detected.')
             return
