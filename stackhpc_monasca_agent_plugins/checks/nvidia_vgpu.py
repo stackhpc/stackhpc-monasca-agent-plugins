@@ -100,8 +100,8 @@ class Nvidiasmi():
         return {
             'utilisation_gpu_percent': _convert_percent_str2float(cls.vgpu_info[index].get("Gpu")),
             'utilisation_memory_percent': _convert_percent_str2float(cls.vgpu_info[index].get("Memory")),
-            'utilisation_encoder_percent': _convert_percent_str2float(cls.vgpu_info[index].get("Encoder")),
-            'utilisation_decoder_percent': _convert_percent_str2float(cls.vgpu_info[index].get("Decoder"))
+            # 'utilisation_encoder_percent': _convert_percent_str2float(cls.vgpu_info[index].get("Encoder")),
+            # 'utilisation_decoder_percent': _convert_percent_str2float(cls.vgpu_info[index].get("Decoder"))
         }
 
     @classmethod
