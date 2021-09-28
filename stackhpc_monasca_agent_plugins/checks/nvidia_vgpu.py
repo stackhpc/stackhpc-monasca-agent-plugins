@@ -120,10 +120,6 @@ class Nvidiasmi():
     def get_vgpu_vm_uuid(cls, index):
         return {'vm_uuid': cls.vgpu_info[index].get("VM UUID")}
 
-    @classmethod
-    def get_vgpu_vm_name(cls, index):
-        return {'vm_name': cls.vgpu_info[index].get("VM Name")}
-
 
 class NvidiaVgpu(checks.AgentCheck):
     def __init__(self, name, init_config, agent_config):
@@ -239,7 +235,6 @@ class NvidiaVgpu(checks.AgentCheck):
             dimensions.update(cnsmi.get_vgpu_id(i))
             dimensions.update(cnsmi.get_vgpu_uuid(i))
             dimensions.update(cnsmi.get_vgpu_vm_uuid(i))
-            dimensions.update(cnsmi.get_vgpu_vm_name(i))
 
             measurements = {}
             measurements.update(cnsmi.get_vgpu_utilisation_stats(i))
