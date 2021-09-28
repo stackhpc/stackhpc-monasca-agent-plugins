@@ -20,9 +20,38 @@ import monasca_setup.detection
 
 LOG = logging.getLogger(__name__)
 
+# Directory to use for instance and metric caches (preferred tmpfs "/dev/shm")
+cache_dir = "/dev/shm"
+# Maximum age of instance cache before automatic refresh (in seconds)
+nova_refresh = 60 * 60 * 4  # Four hours
+# List of instance metadata keys to be sent as dimensions
+# By default 'scale_group' metadata is used here for supporting auto
+# scaling in Heat.
+metadata = ['scale_group']
+# Include scale group dimension for customer metrics.
+customer_metadata = ['scale_group']
+
+INT_ARGS = []
+
 
 class NvidiaVgpuDetect(monasca_setup.detection.Plugin):
     """Detects and configures nVidia plugin."""
+    @staticmethod
+    def _has_cache_dir():
+        return os.path.isdir(cache_dir)
+
+    def _get_init_config(self):
+        init_config = {
+            'cache_dir': cache_dir,
+            'nova_refresh': nova_refresh,
+            'metadata': metadata,
+            'customer_metadata': customer_metadata
+        }
+        return init_config
+
+    @staticmethod
+    def _has_cache_dir():
+        return os.path.isdir(cache_dir)
 
     def _detect(self):
         self.available = False
@@ -30,11 +59,27 @@ class NvidiaVgpuDetect(monasca_setup.detection.Plugin):
                 ["lshw", "-C", "display"]).lower():
             LOG.info('No nVidia hardware detected.')
             return
-        self.available = True
+        self.available = self._has_cache_dir()
 
     def build_config(self):
+        """Build the config as a Plugins object and return back.
+        """
         config = monasca_setup.agent_config.Plugins()
-        config['nvidiavgpu'] = {
-            'init_config': None,
+        init_config = self._get_init_config()
+        if self.args:
+            for arg in self.args:
+                if arg in INT_ARGS:
+                    value = self.args[arg]
+                    try:
+                        init_config[arg] = int(value)
+                    except ValueError:
+                        log.warn("\tInvalid integer value '{0}' for parameter {1}, ignoring value"
+                                 .format(value, arg))
+                else:
+                    init_config[arg] = self.literal_eval(self.args[arg])
+
+        config['nvidia_vgpu'] = {
+            'init_config': init_config,
             'instances': [{'name': 'nvidia_stats'}]}
+
         return config
