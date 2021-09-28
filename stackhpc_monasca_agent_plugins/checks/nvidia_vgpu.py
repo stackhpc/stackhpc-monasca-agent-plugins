@@ -13,8 +13,14 @@
 # under the License.
 
 import logging
+import os
+import stat
 
 import monasca_agent.collector.checks as checks
+import monasca_agent.collector.checks.utils as utils
+from monasca_agent.common import keystone
+from monasca_agent import version as ma_version
+from novaclient import client as n_client
 import subprocess
 
 
@@ -104,7 +110,7 @@ class Nvidiasmi():
 
     @classmethod
     def get_vgpu_uuid(cls, index):
-        return {'uuid': cls.vgpu_info[index].get("vGPU UUID")}
+        return {'vgpu_uuid': cls.vgpu_info[index].get("vGPU UUID")}
 
     @classmethod
     def get_vgpu_name(cls, index):
@@ -112,7 +118,7 @@ class Nvidiasmi():
 
     @classmethod
     def get_vgpu_vm_uuid(cls, index):
-        return {'uuid': cls.vgpu_info[index].get("VM UUID")}
+        return {'vm_uuid': cls.vgpu_info[index].get("VM UUID")}
 
     @classmethod
     def get_vgpu_vm_name(cls, index):
@@ -122,6 +128,104 @@ class Nvidiasmi():
 class NvidiaVgpu(checks.AgentCheck):
     def __init__(self, name, init_config, agent_config):
         super(Nvidia, self).__init__(name, init_config, agent_config)
+
+        self.instance_cache_file = "{0}/{1}".format(self.init_config.get('cache_dir'),
+                                                    'vgpu_instances.json')
+
+    def _load_instance_cache(self):
+        """Load the cache map of instance names to Nova data.
+           If the cache does not yet exist or is damaged, (re-)build it.
+        """
+        instance_cache = {}
+        try:
+            with open(self.instance_cache_file, 'r') as cache_json:
+                instance_cache = json.load(cache_json)
+
+                # Is it time to force a refresh of this data?
+                if self.init_config.get('nova_refresh') is not None:
+                    time_diff = time.time() - instance_cache['last_update']
+                    if time_diff > self.init_config.get('nova_refresh'):
+                        self._update_instance_cache()
+        except (IOError, TypeError, ValueError):
+            # The file may not exist yet, or is corrupt.  Rebuild it now.
+            self.log.warning("Instance cache missing or corrupt, rebuilding.")
+            instance_cache = self._update_instance_cache()
+            pass
+
+        return instance_cache
+
+    def _get_nova_host(self, nova_client):
+        if not self._nova_host:
+            # Find `nova-compute` on current node
+            services = nova_client.services.list(host=self.hostname,
+                                                 binary='nova-compute')
+            if not services:
+                # Catch the case when `nova-compute` is registered with
+                # unqualified hostname
+                services = nova_client.services.list(
+                    host=self.hostname.split('.')[0], binary='nova-compute')
+            if services:
+                self._nova_host = services[0].host
+                self.log.info("Found 'nova-compute' registered with host: {}"
+                              .format(self._nova_host))
+
+        if self._nova_host:
+            return self._nova_host
+        else:
+            self.log.warn("No 'nova-compute' service found on host: {}"
+                          .format(self.hostname))
+            # Return hostname as fallback value
+            return self.hostname
+
+    def _update_instance_cache(self):
+        """Collect instance_id, project_id, and AZ for all instance UUIDs
+        """
+
+        id_cache = {}
+        flavor_cache = {}
+        port_cache = None
+        netns = None
+        # Get a list of all instances from the Nova API
+        session = keystone.get_session(**self.init_config)
+        nova_client = n_client.Client(
+            "2.1", session=session,
+            endpoint_type=self.init_config.get("endpoint_type", "publicURL"),
+            service_type="compute",
+            region_name=self.init_config.get('region_name'),
+            client_name='monasca-agent[nvidiavgpu]',
+            client_version=ma_version.version_string)
+        instances = nova_client.servers.list(
+            search_opts={'all_tenants': 1,
+                         'host': self._get_nova_host(nova_client)})
+        for instance in instances:
+            instance_ports = []
+            inst_id = instance.id
+            inst_az = instance.__getattr__('OS-EXT-AZ:availability_zone')
+            id_cache[inst_id] = {'instance_uuid': instance.id,
+                                 'hostname': instance.name,
+                                 'zone': inst_az,
+                                 'created': instance.created,
+                                 'tenant_id': instance.tenant_id}
+
+            for config_var in ['metadata', 'customer_metadata']:
+                if self.init_config.get(config_var):
+                    for metadata in self.init_config.get(config_var):
+                        if instance.metadata.get(metadata):
+                            id_cache[inst_id][metadata] = (instance.metadata.
+                                                             get(metadata))
+
+        id_cache['last_update'] = int(time.time())
+
+        # Write the updated cache
+        try:
+            with open(self.instance_cache_file, 'w') as cache_json:
+                json.dump(id_cache, cache_json)
+            if stat.S_IMODE(os.stat(self.instance_cache_file).st_mode) != 0o600:
+                os.chmod(self.instance_cache_file, 0o600)
+        except IOError as e:
+            self.log.error("Cannot write to {0}: {1}".format(self.instance_cache_file, e))
+
+        return id_cache
 
     @staticmethod
     def _get_vgpu_info():
@@ -151,7 +255,18 @@ class NvidiaVgpu(checks.AgentCheck):
         return all_info
 
     def check(self, instance):
+        """Gather vgpu metrics for each instance"""
+
+        instance_cache = self._load_instance_cache()
+
         for vgpu_metrics in NvidiaVgpu._get_vgpu_info():
+            inst_id = vgpu_metrics.get('dimensions')['vm_uuid']
+            # If new instances are detected, update the instance cache
+            if inst_id not in instance_cache:
+                instance_cache = self._update_instance_cache()
+
+            dimensions=vgpu_metrics.get('dimensions')
+            dimensions.update({'hostname': instance_cache.get(inst_id)['hostname']})
             for measurement, value in vgpu_metrics['measurements'].items():
                 metric_name = '{0}.{1}.{2}'.format(
                     _METRIC_NAME_PREFIX, _VGPU_METRIC_NAME_PREFIX, measurement)
@@ -159,6 +274,7 @@ class NvidiaVgpu(checks.AgentCheck):
                            value,
                            device_name=vgpu_metrics.get('name'),
                            dimensions=vgpu_metrics.get('dimensions'),
+                           delegated_tenant=instance_cache.get(inst_id)['tenant_id'],
                            value_meta=None)
             log.debug('Collected info for vGPU {}'.format(
                 vgpu_metrics.get('name')))
