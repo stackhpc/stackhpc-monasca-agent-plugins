@@ -13,12 +13,13 @@
 # under the License.
 
 import logging
+import os
 import subprocess
 
 import monasca_setup.agent_config
 import monasca_setup.detection
 
-LOG = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 # Directory to use for instance and metric caches (preferred tmpfs "/dev/shm")
 cache_dir = "/dev/shm"
@@ -28,10 +29,6 @@ nova_refresh = 60 * 60 * 4  # Four hours
 # By default 'scale_group' metadata is used here for supporting auto
 # scaling in Heat.
 metadata = ['scale_group']
-# Include scale group dimension for customer metrics.
-customer_metadata = ['scale_group']
-
-INT_ARGS = []
 
 
 class NvidiaVgpuDetect(monasca_setup.detection.Plugin):
@@ -44,20 +41,15 @@ class NvidiaVgpuDetect(monasca_setup.detection.Plugin):
         init_config = {
             'cache_dir': cache_dir,
             'nova_refresh': nova_refresh,
-            'metadata': metadata,
-            'customer_metadata': customer_metadata
+            'metadata': metadata
         }
         return init_config
-
-    @staticmethod
-    def _has_cache_dir():
-        return os.path.isdir(cache_dir)
 
     def _detect(self):
         self.available = False
         if b'nvidia' not in subprocess.check_output(
                 ["lshw", "-C", "display"]).lower():
-            LOG.info('No nVidia hardware detected.')
+            log.info('No nVidia hardware detected.')
             return
         self.available = self._has_cache_dir()
 
@@ -68,15 +60,7 @@ class NvidiaVgpuDetect(monasca_setup.detection.Plugin):
         init_config = self._get_init_config()
         if self.args:
             for arg in self.args:
-                if arg in INT_ARGS:
-                    value = self.args[arg]
-                    try:
-                        init_config[arg] = int(value)
-                    except ValueError:
-                        log.warn("\tInvalid integer value '{0}' for parameter {1}, ignoring value"
-                                 .format(value, arg))
-                else:
-                    init_config[arg] = self.literal_eval(self.args[arg])
+                init_config[arg] = self.literal_eval(self.args[arg])
 
         config['nvidia_vgpu'] = {
             'init_config': init_config,

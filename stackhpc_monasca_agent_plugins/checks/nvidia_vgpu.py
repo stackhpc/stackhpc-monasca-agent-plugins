@@ -1,27 +1,14 @@
-# Copyright (c) 2018 StackHPC Ltd.
-#
-# Licensed under the Apache License, Version 2.0 (the "License"); you may
-# not use this file except in compliance with the License. You may obtain
-# a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-# License for the specific language governing permissions and limitations
-# under the License.
-
+import json
 import logging
 import os
 import stat
+import subprocess
+import time
 
 import monasca_agent.collector.checks as checks
-import monasca_agent.collector.checks.utils as utils
-from monasca_agent.common import keystone
 from monasca_agent import version as ma_version
+from monasca_agent.common import keystone
 from novaclient import client as n_client
-import subprocess
 
 
 log = logging.getLogger(__name__)
@@ -47,29 +34,32 @@ class Nvidiasmi():
 
     @classmethod
     def get_vgpu_info(cls):
-        # It queries vgpu infor using nvidia-smi vgpu command and convert the output
-        # into a python dict array.
-        # Expected result is;
+        """It queries vgpu infor using nvidia-smi vgpu command and convert the
+        output into a python dict array.
+        Expected result is;
         # # GPU 00000000:3B:00.0
-        # # Active vGPUs                      : 3
-        # # vGPU ID                           : 3251635087
-        # #     VM UUID                       : 5c0038dc-4129-4dc3-8b64-20d309565abb
-        # #     VM Name                       : instance-00002903
-        # #     vGPU Name                     : GRID V100D-8Q
-        # #     vGPU Type                     : 183
-        # #     vGPU UUID                     : d2668621-addf-11eb-94cf-ca3b2a15ab98
+        # # Active vGPUs           : 3
+        # # vGPU ID                : 3251635087
+        # #     VM UUID            : 5c0038dc-4129-4dc3-8b64-20d309565abb
+        # #     VM Name            : instance-00002903
+        # #     vGPU Name          : GRID V100D-8Q
+        # #     vGPU Type          : 183
+        # #     vGPU UUID          : d2668621-addf-11eb-94cf-ca3b2a15ab98
         # #     Utilization
-        # #         Gpu                       : 0 %
-        # #         Memory                    : 0 %
-        # #         Encoder                   : 0 %
-        # #         Decoder                   : 0 %
+        # #         Gpu            : 0 %
+        # #         Memory         : 0 %
+        # #         Encoder        : 0 %
+        # #         Decoder        : 0 %
+        """
 
         active_vgpu_key = "Active vGPUs"
         vgpu_id_key = "vGPU ID"
 
         cls.vgpu_info = []
 
-        sp = subprocess.Popen(['nvidia-smi', 'vgpu', '-q'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        sp = subprocess.Popen(['nvidia-smi', 'vgpu', '-q'],
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)
         out_str = sp.communicate()
         out_list = out_str[0].decode("utf-8").split('\n')
 
@@ -84,7 +74,7 @@ class Nvidiasmi():
                     cls.vgpu_info.append({})
                     cnt += 1
                 cls.vgpu_info[cnt][key] = val
-            except:
+            except ValueError:
                 pass
 
     @classmethod
@@ -93,15 +83,17 @@ class Nvidiasmi():
 
     @classmethod
     def get_vgpu_utilisation_stats(cls, index):
-        # Returns the utilization infor of the vgpu[index]
-        # index is not a vgpu property, it is just a number indicating vgpu order
-        # in the vgpu query result array, vgpu_info, which is fetched in get_vgpu_info
-        # function.
+        """ Returns the utilization infor of the vgpu[index]
+        index is not a vgpu property, it is just a number indicating vgpu
+        order in the vgpu query result array, vgpu_info, fetched from
+        get_vgpu_info function"""
         return {
-            'utilisation_gpu_percent': _convert_percent_str2float(cls.vgpu_info[index].get("Gpu")),
-            'utilisation_memory_percent': _convert_percent_str2float(cls.vgpu_info[index].get("Memory")),
-            # 'utilisation_encoder_percent': _convert_percent_str2float(cls.vgpu_info[index].get("Encoder")),
-            # 'utilisation_decoder_percent': _convert_percent_str2float(cls.vgpu_info[index].get("Decoder"))
+            'utilisation_gpu_percent': _convert_percent_str2float(
+                cls.vgpu_info[index].get("Gpu")
+            ),
+            'utilisation_memory_percent': _convert_percent_str2float(
+                cls.vgpu_info[index].get("Memory")
+            )
         }
 
     @classmethod
@@ -123,10 +115,12 @@ class Nvidiasmi():
 
 class NvidiaVgpu(checks.AgentCheck):
     def __init__(self, name, init_config, agent_config):
-        super(Nvidia, self).__init__(name, init_config, agent_config)
+        super(NvidiaVgpu, self).__init__(name, init_config, agent_config)
 
-        self.instance_cache_file = "{0}/{1}".format(self.init_config.get('cache_dir'),
-                                                    'vgpu_instances.json')
+        self.instance_cache_file = "{0}/{1}".format(
+            self.init_config.get('cache_dir'),
+            'vgpu_instances.json'
+        )
 
     def _load_instance_cache(self):
         """Load the cache map of instance names to Nova data.
@@ -178,9 +172,6 @@ class NvidiaVgpu(checks.AgentCheck):
         """
 
         id_cache = {}
-        flavor_cache = {}
-        port_cache = None
-        netns = None
         # Get a list of all instances from the Nova API
         session = keystone.get_session(**self.init_config)
         nova_client = n_client.Client(
@@ -194,7 +185,6 @@ class NvidiaVgpu(checks.AgentCheck):
             search_opts={'all_tenants': 1,
                          'host': self._get_nova_host(nova_client)})
         for instance in instances:
-            instance_ports = []
             inst_id = instance.id
             inst_az = instance.__getattr__('OS-EXT-AZ:availability_zone')
             id_cache[inst_id] = {'instance_uuid': instance.id,
@@ -203,12 +193,11 @@ class NvidiaVgpu(checks.AgentCheck):
                                  'created': instance.created,
                                  'tenant_id': instance.tenant_id}
 
-            for config_var in ['metadata', 'customer_metadata']:
-                if self.init_config.get(config_var):
-                    for metadata in self.init_config.get(config_var):
-                        if instance.metadata.get(metadata):
-                            id_cache[inst_id][metadata] = (instance.metadata.
-                                                             get(metadata))
+            if self.init_config.get('metadata'):
+                for metadata in self.init_config.get('metadata'):
+                    if instance.metadata.get(metadata):
+                        id_cache[inst_id][metadata] = \
+                            instance.metadata.get(metadata)
 
         id_cache['last_update'] = int(time.time())
 
@@ -216,10 +205,13 @@ class NvidiaVgpu(checks.AgentCheck):
         try:
             with open(self.instance_cache_file, 'w') as cache_json:
                 json.dump(id_cache, cache_json)
-            if stat.S_IMODE(os.stat(self.instance_cache_file).st_mode) != 0o600:
+            mode = os.stat(self.instance_cache_file).st_mode
+            if stat.S_IMODE(mode) != 0o600:
                 os.chmod(self.instance_cache_file, 0o600)
         except IOError as e:
-            self.log.error("Cannot write to {0}: {1}".format(self.instance_cache_file, e))
+            self.log.error(
+                "Cannot write to {0}:{1}".format(self.instance_cache_file, e)
+            )
 
         return id_cache
 
@@ -260,16 +252,23 @@ class NvidiaVgpu(checks.AgentCheck):
             if inst_id not in instance_cache:
                 instance_cache = self._update_instance_cache()
 
-            dimensions=vgpu_metrics.get('dimensions')
-            dimensions.update({'hostname': instance_cache.get(inst_id)['hostname']})
+            dimensions = vgpu_metrics.get('dimensions')
+            dimensions.update(
+                {'hostname': instance_cache.get(inst_id)['hostname']}
+            )
             for measurement, value in vgpu_metrics['measurements'].items():
                 metric_name = '{0}.{1}.{2}'.format(
-                    _METRIC_NAME_PREFIX, _VGPU_METRIC_NAME_PREFIX, measurement)
-                self.gauge(metric_name,
-                           value,
-                           device_name=vgpu_metrics.get('name'),
-                           dimensions=vgpu_metrics.get('dimensions'),
-                           delegated_tenant=instance_cache.get(inst_id)['tenant_id'],
-                           value_meta=None)
+                    _METRIC_NAME_PREFIX,
+                    _VGPU_METRIC_NAME_PREFIX,
+                    measurement
+                )
+                self.gauge(
+                    metric_name,
+                    value,
+                    device_name=vgpu_metrics.get('name'),
+                    dimensions=vgpu_metrics.get('dimensions'),
+                    delegated_tenant=instance_cache.get(inst_id)['tenant_id'],
+                    value_meta=None
+                )
             log.debug('Collected info for vGPU {}'.format(
                 vgpu_metrics.get('name')))
