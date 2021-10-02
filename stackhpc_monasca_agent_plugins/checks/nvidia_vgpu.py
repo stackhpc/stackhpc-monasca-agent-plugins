@@ -73,6 +73,8 @@ class Nvidiasmi():
                 if key == vgpu_id_key:
                     cls.vgpu_info.append({})
                     cnt += 1
+                if cnt == -1:
+                    continue
                 cls.vgpu_info[cnt][key] = val
             except ValueError:
                 pass
@@ -134,7 +136,7 @@ class NvidiaVgpu(checks.AgentCheck):
                 # Is it time to force a refresh of this data?
                 if self.init_config.get('nova_refresh') is not None:
                     time_diff = time.time() - instance_cache['last_update']
-                    if time_diff > self.init_config.get('nova_refresh'):
+                    if time_diff > float(self.init_config.get('nova_refresh')):
                         self._update_instance_cache()
         except (IOError, TypeError, ValueError):
             # The file may not exist yet, or is corrupt.  Rebuild it now.
