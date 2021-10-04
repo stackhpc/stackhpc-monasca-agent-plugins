@@ -13,7 +13,7 @@ from novaclient import client as n_client
 
 log = logging.getLogger(__name__)
 
-_METRIC_NAME_PREFIX = "nvidia"
+_AGGREGATE_METRIC_NAME_PREFIX = "nova"
 _VGPU_METRIC_NAME_PREFIX = "vgpu"
 
 
@@ -259,8 +259,12 @@ class NvidiaVgpu(checks.AgentCheck):
                 {'hostname': instance_cache.get(inst_id)['hostname']}
             )
             for measurement, value in vgpu_metrics['measurements'].items():
-                metric_name = '{0}.{1}.{2}'.format(
-                    _METRIC_NAME_PREFIX,
+                agg_metric_name = '{0}.{1}.{2}'.format(
+                    _AGGREGATE_METRIC_NAME_PREFIX,
+                    _VGPU_METRIC_NAME_PREFIX,
+                    measurement
+                )
+                metric_name = '{0}.{1}'.format(
                     _VGPU_METRIC_NAME_PREFIX,
                     measurement
                 )
@@ -270,6 +274,13 @@ class NvidiaVgpu(checks.AgentCheck):
                     device_name=vgpu_metrics.get('name'),
                     dimensions=vgpu_metrics.get('dimensions'),
                     delegated_tenant=instance_cache.get(inst_id)['tenant_id'],
+                    value_meta=None
+                )
+                self.gauge(
+                    agg_metric_name,
+                    value,
+                    device_name=vgpu_metrics.get('name'),
+                    dimensions=vgpu_metrics.get('dimensions'),
                     value_meta=None
                 )
             log.debug('Collected info for vGPU {}'.format(
